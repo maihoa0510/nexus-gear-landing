@@ -1,0 +1,1453 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Nexus Gear</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: full-bleed bands on a 1728 canvas, hairline-bordered grid cells, mono labels; single light look from the Figma file, dark footer */
+:root {
+  --bg:#111110; --ink:#efefe7; --ink-70:rgba(239,239,231,.7); --ink-3:#9a9a93; --bd:#3a3a36; --line:#2c2c29; --surface:#1a1a18; --brand:#f15534; --dark:#0a0a0a; --paper:#1a1a18; --cream:#f7f7f0;
+  --f-display:'Inter Tight','Helvetica Now Display',Helvetica,Arial,sans-serif;
+  --f-mono:'Geist Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  color-scheme: dark;
+}
+html { background: var(--bg); }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-display); font-size: 16px; line-height: 1.5; overflow-x: clip; -webkit-font-smoothing: antialiased; }
+body::before { content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:10; background:var(--bg); }
+main { overflow-x: clip; }
+main > section { max-width: 100%; }
+img { max-width: 100%; }
+h1,h2,h3 { text-wrap: balance; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
+
+/* progress bar */
+.nx-progress { position: fixed; top: env(safe-area-inset-top,0px); left: 0; height: 3px; width: 100%; background: var(--brand); transform-origin: 0 50%; transform: scaleX(0); z-index: 60; pointer-events: none; }
+
+/* sticky nav clone */
+.nx-sticky { position: fixed; top: 0; left: 0; right: 0; z-index: 50; padding-top: env(safe-area-inset-top,0px); background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--bd); transform: translateY(-110%); transition: transform .5s var(--ease-out); }
+.nx-sticky.is-on { transform: translateY(0); }
+.nx-sticky > * { margin: 0 auto; max-width: 1728px; }
+
+/* intro loader */
+.nx-loader { position: fixed; inset: 0; z-index: 100; background: var(--brand); color: var(--cream); display: flex; flex-direction: column; justify-content: space-between; padding-block: calc(24px + env(safe-area-inset-top,0px)) calc(24px + env(safe-area-inset-bottom,0px)); padding-left: max(24px, env(safe-area-inset-left,0px)); padding-right: max(24px, env(safe-area-inset-right,0px)); font-family: var(--f-mono); text-transform: uppercase; font-size: 13px; letter-spacing: .04em; }
+.nx-loader__row { display: flex; justify-content: space-between; gap: 16px; }
+.nx-loader__num { font-family: var(--f-display); font-weight: 700; font-size: clamp(72px, 16vw, 260px); line-height: .8; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+.nx-loader__bar { height: 2px; background: color-mix(in srgb, var(--cream) 30%, transparent); }
+.nx-loader__bar i { display: block; height: 100%; width: 0; background: var(--cream); }
+html.no-loader .nx-loader { display: none; }
+
+/* cursor */
+.nx-cursor { position: fixed; top: 0; left: 0; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: var(--brand); pointer-events: none; z-index: 90; mix-blend-mode: multiply; transition: width .3s var(--ease-out), height .3s var(--ease-out), margin .3s var(--ease-out), opacity .3s; opacity: 0; }
+.nx-cursor.is-big { width: 56px; height: 56px; margin: -28px 0 0 -28px; opacity: .35 !important; }
+@media (hover: none) { .nx-cursor { display: none; } }
+
+/* motion helpers */
+.split-line { display: inline-block; text-indent: 0; overflow: hidden; vertical-align: top; padding-bottom: .06em; margin-bottom: -.06em; }
+.split-word { display: inline-block; text-indent: 0; will-change: transform; }
+[data-marquee] { overflow: hidden; }
+[data-marquee] .marquee-track { display: flex; flex-wrap: nowrap; width: max-content; }
+[data-marquee].is-running .marquee-track { animation: nx-marquee var(--dur, 30s) linear infinite; }
+[data-marquee="reverse"].is-running .marquee-track { animation-direction: reverse; }
+[data-marquee]:hover .marquee-track { animation-play-state: paused; }
+@keyframes nx-marquee { to { transform: translateX(-50%); } }
+[data-hover-zoom] { overflow: hidden; }
+[data-hover-zoom] img { transition: transform .9s var(--ease-out), filter .6s; }
+[data-hover-zoom]:hover img { transform: scale(1.06); }
+[data-magnetic] { transition: transform .4s var(--ease-out); will-change: transform; }
+
+@media (prefers-reduced-motion: reduce) {
+  .nx-loader { display: none; }
+  [data-marquee].is-running .marquee-track { animation: none; }
+  .nx-cursor { display: none; }
+}
+</style>
+
+<div class="nx-loader" aria-hidden="true">
+  <div class="nx-loader__row"><span>Nexus Studios</span><span>Loading build 0.1</span></div>
+  <div>
+    <div class="nx-loader__row" style="align-items:flex-end"><span class="nx-loader__num">000</span><span>Unreal Engine 5</span></div>
+    <div class="nx-loader__bar" style="margin-top:20px"><i></i></div>
+  </div>
+</div>
+<div class="nx-progress" aria-hidden="true"></div>
+<div class="nx-cursor" aria-hidden="true"></div>
+
+<main>
+<!-- 01-hero.html -->
+<section class="nx-hero" id="hero">
+  <div class="nx-hero__inner">
+    <header class="nx-nav">
+      <a class="nx-nav__brand" href="#hero" aria-label="Nexus Studios home">
+        <img src="assets/h-logo.svg" width="31.718" height="32" alt="">
+        <span>NEXUS STUDIOS</span>
+      </a>
+      <nav class="nx-nav__menu" aria-label="Primary">
+        <a class="nx-nav__item nx-nav__item--dd" href="#overview">GAMES<img class="nx-nav__chev" src="assets/h-chevron.svg" width="16" height="16" alt=""></a>
+        <a class="nx-nav__item" href="#usecases">SERVICES</a>
+        <a class="nx-nav__item" href="#community">COMMUNITY</a>
+        <a class="nx-nav__item" href="#operatives">MEDIA</a>
+        <a class="nx-nav__item" href="#footer">CONTACT</a>
+        <a class="nx-nav__cta" href="#community" data-magnetic>PLAY BETA<img src="assets/h-arrow.svg" width="20" height="20" alt=""></a>
+      </nav>
+    </header>
+
+    <h1 class="nx-hero__wordmark" data-split>NEXUS GEAR</h1>
+
+    <div class="nx-hero__stage">
+      <div class="nx-hero__left">
+        <!-- decorative hourglass emblem (assembled from Figma vector layers) -->
+        <div class="nx-hero__emblem" aria-hidden="true" data-float>
+          <img class="nx-hero__ring" src="assets/h-emb-e24.svg" alt="">
+          <img class="nx-hero__ring" src="assets/h-emb-e25.svg" alt="">
+          <img class="nx-hero__ring nx-hero__ring--sm" src="assets/h-emb-e26.svg" alt="">
+          <span class="nx-hero__ep" style="inset:68.92% 50.29% 6.57% 12.53%"><span class="nx-hero__ei" style="inset:-1.63% -1.1% -1.2% -0.79%"><img src="assets/h-emb-v0.png" alt=""></span></span>
+          <span class="nx-hero__ep" style="inset:67.85% 49.88% 9.35% 14.42%"><span class="nx-hero__ei" style="inset:-1.28% -0.82%"><img src="assets/h-emb-v1.png" alt=""></span></span>
+          <span class="nx-hero__ep" style="inset:16.88% 24.51% 17.5% 25.29%"><span class="nx-hero__ei" style="inset:-0.45% -0.58%"><img src="assets/h-emb-v2.png" alt=""></span></span>
+          <span class="nx-hero__ep" style="inset:29.7% 16.34% 10.81% 45.65%"><span class="nx-hero__ei" style="inset:-0.68% -1.06% -0.49% -0.77%"><img src="assets/h-emb-v3.png" alt=""></span></span>
+          <span class="nx-hero__ep" style="inset:11.89% 45.66% 28.54% 16.31%"><span class="nx-hero__ei" style="inset:-0.67% -1.06% -0.49% -0.77%"><img src="assets/h-emb-v4.png" alt=""></span></span>
+          <span class="nx-hero__ep" style="inset:7% 12.25% 67.48% 50.06%"><span class="nx-hero__ei" style="inset:-1.56% -1.08% -1.15% -0.78%"><img src="assets/h-emb-v5.png" alt=""></span></span>
+          <span class="nx-hero__ep" style="inset:6.64% 12.26% 70.65% 52.06%"><span class="nx-hero__ei" style="inset:-1.29% -0.82%"><img src="assets/h-emb-v6.png" alt=""></span></span>
+          <span class="nx-hero__er" style="left:34.54%;top:50.24%;width:21.713%;height:15.825%"><span style="width:22.957px;height:4.272px"><span class="nx-hero__ei" style="inset:-0.31% -1.28% -6.86% -1.28%"><img src="assets/h-emb-e44.svg" alt=""></span></span></span>
+          <span class="nx-hero__er" style="left:47.95%;top:22.09%;width:26.748%;height:19.584%"><span style="width:28.17px;height:5.436px"><span class="nx-hero__ei" style="inset:0 -1.04% -5.39% -1.04%"><img src="assets/h-emb-e46.svg" alt=""></span></span></span>
+          <span class="nx-hero__er" style="left:42.53%;top:36.15%;width:22.262%;height:16.194%"><span style="width:23.575px;height:4.318px"><span class="nx-hero__ei" style="inset:-0.19% -1.24% -6.78% -1.24%"><img src="assets/h-emb-e45.svg" alt=""></span></span></span>
+          <span class="nx-hero__er" style="left:23.1%;top:63.63%;width:25.834%;height:18.842%"><span style="width:27.298px;height:5.107px"><span class="nx-hero__ei" style="inset:-0.51% -1.07% -5.74% -1.07%"><img src="assets/h-emb-e43.svg" alt=""></span></span></span>
+          <img class="nx-hero__eframe" src="assets/h-emb-frame.svg" alt="">
+        </div>
+
+        <div class="nx-hero__profile">
+          <p class="nx-hero__profile-title">› OPERATIVE PROFILE</p>
+          <dl class="nx-hero__specs" data-stagger>
+            <div><dt>ROLE:</dt><dd>OBSOLETE</dd></div>
+            <div><dt>ACCESS:</dt><dd>NEGATIVE</dd></div>
+            <div><dt>REDACTED:</dt><dd>REVOKED</dd></div>
+          </dl>
+          <a class="nx-hero__btn" href="#homepage" data-magnetic>
+            EXPLORE WEAPONS
+            <img class="nx-hero__corner nx-hero__corner--tl" src="assets/h-corner-tl.svg" width="7.2939" height="7.2939" alt="">
+            <img class="nx-hero__corner nx-hero__corner--br" src="assets/h-corner-br.svg" width="7.2939" height="7.2939" alt="">
+          </a>
+        </div>
+      </div>
+
+      <figure class="nx-hero__figure" data-parallax="0.12">
+        <img src="assets/h-character.png" width="493" height="740" alt="Nexus Gear operative in a white tactical jacket holding twin blades">
+      </figure>
+
+      <div class="nx-hero__right">
+        <ul class="nx-hero__social" aria-label="Social links">
+          <li><a href="#">Facebook</a></li>
+          <li><a href="#">X/Twitter</a></li>
+          <li><a href="#">LinkedIn</a></li>
+        </ul>
+        <div class="nx-hero__card" data-reveal="up">
+          <p class="nx-hero__card-tag">/ REAL-TIME COMBAT</p>
+          <p class="nx-hero__card-text">EXPERIENCE REAL-TIME COMBAT PHYSICS AND ULTRA-HIGH GRAPHICS.</p>
+          <img class="nx-hero__card-img" src="assets/h-character.png" width="139" height="209" alt="">
+        </div>
+      </div>
+
+      <!-- callouts with leader lines (decorative overlays on desktop) -->
+      <div class="nx-hero__callout nx-hero__callout--l">
+        <div class="nx-hero__labels" data-stagger>
+          <span>/ UNREAL ENGINE 5</span>
+          <span>/ OPEN-WORLD RPG</span>
+          <span>/ NEXT-GEN COMBAT</span>
+        </div>
+        <img class="nx-hero__line" src="assets/h-line-left.svg" width="304.5" height="41" alt="">
+        <span class="nx-hero__marker" aria-hidden="true"></span>
+      </div>
+      <div class="nx-hero__callout nx-hero__callout--r">
+        <span class="nx-hero__marker" aria-hidden="true"></span>
+        <img class="nx-hero__line" src="assets/h-line-right.svg" width="310.5" height="104.5" alt="">
+        <div class="nx-hero__labels" data-stagger>
+          <span>/ UNREAL ENGINE 5</span>
+          <span>/ OPEN-WORLD RPG</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<style>
+.nx-hero { background: var(--bg); color: var(--ink); }
+.nx-hero__inner { position: relative; max-width: 1712px; margin: 0 auto; border: 1px solid var(--bd); border-bottom: 0; overflow: hidden; }
+.nx-hero *, .nx-hero *::before, .nx-hero *::after { box-sizing: border-box; }
+.nx-hero :where(p, h1, dl, dd, ul, figure) { margin: 0; padding: 0; }
+.nx-hero a { color: inherit; text-decoration: none; }
+
+/* ---------- header / nav ---------- */
+.nx-hero .nx-nav { position: relative; z-index: 20; display: flex; align-items: stretch; height: 64px; margin: -1px -1px 0; border: 1px solid var(--bd); background: var(--bg); }
+.nx-hero .nx-nav__brand { flex: 1 1 0; display: flex; align-items: center; gap: 4px; padding-left: 32px; min-width: 0; }
+.nx-hero .nx-nav__brand img { width: 31.718px; height: 32px; flex: none; }
+.nx-hero .nx-nav__brand span { font-family: 'Science Gothic', var(--f-display); font-weight: 300; font-size: 24px; line-height: .9; letter-spacing: -0.48px; text-transform: uppercase; color: var(--ink); white-space: nowrap; }
+.nx-hero .nx-nav__menu { flex: 1 1 0; display: flex; align-items: stretch; min-width: 0; }
+.nx-hero .nx-nav__item { position: relative; flex: 1 1 131.2px; min-width: 0; padding: 12px; border-left: 1px solid var(--line); font: 500 14px/1.2 var(--f-mono); text-transform: uppercase; color: var(--ink-70); white-space: nowrap; transition: color .2s, background-color .2s; }
+.nx-hero .nx-nav__item:hover { color: var(--ink); background: rgba(239,239,231,.05); }
+.nx-hero .nx-nav__chev { position: absolute; right: 4px; bottom: 4px; width: 16px; height: 16px; }
+.nx-hero .nx-nav__cta { position: relative; flex: 0 0 200px; padding: 12px; background: var(--brand); border-left: 1px solid var(--bd); font: 500 14px/1.2 var(--f-mono); color: #fff; text-transform: uppercase; white-space: nowrap; }
+.nx-hero .nx-nav__cta img { position: absolute; right: 7.5px; bottom: 3.5px; width: 20px; height: 20px; transition: transform .25s; }
+.nx-hero .nx-nav__cta:hover img { transform: translateX(4px); }
+
+/* ---------- wordmark ---------- */
+.nx-hero__wordmark { position: relative; z-index: 1; margin-top: -11px; padding: 0 0 0 31px; font-family: var(--f-display); font-weight: 700; font-size: clamp(64px, 15.05vw, 260px); line-height: .9; letter-spacing: -0.02em; text-transform: uppercase; color: var(--ink); white-space: nowrap; }
+
+/* ---------- stage ---------- */
+.nx-hero__stage { position: relative; display: grid; grid-template-columns: 1fr clamp(240px, 28.8vw, 493px) 1fr; padding-bottom: 31px; margin-top: calc(-1 * clamp(30px, 7.9vw, 136px)); }
+.nx-hero__figure { position: relative; z-index: 2; grid-column: 2; transform: translateX(-25.5px); }
+.nx-hero__figure img { display: block; width: 100%; height: auto; aspect-ratio: 493 / 740; object-fit: cover; }
+
+.nx-hero__left { grid-column: 1; display: flex; flex-direction: column; padding: clamp(80px, 8.9vw, 154px) 0 15px 52px; }
+.nx-hero__emblem { position: relative; width: 100px; height: 100px; margin-left: -11px; }
+.nx-hero__emblem img { position: absolute; display: block; max-width: none; }
+.nx-hero__ring { left: 50%; top: 50%; width: 78.125px; height: 78.125px; transform: translate(-50%, -50%); }
+.nx-hero__ring--sm { width: 64.063px; height: 64.063px; }
+.nx-hero__ep { position: absolute; }
+.nx-hero__ei { position: absolute; display: block; }
+.nx-hero__emblem .nx-hero__ei img { position: static; width: 100%; height: 100%; }
+.nx-hero__er { position: absolute; display: flex; align-items: center; justify-content: center; }
+.nx-hero__er > span { position: relative; flex: none; transform: rotate(32.13deg); }
+.nx-hero__eframe { left: 50%; top: 50%; width: 78.125px; height: 80.469px; transform: translate(-50%, -50%); }
+
+.nx-hero__profile { margin-top: auto; width: 220px; }
+.nx-hero__profile-title { font: 500 14px/1.2 var(--f-mono); text-transform: uppercase; color: var(--ink); }
+.nx-hero__specs { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; font: 400 14px/1.2 var(--f-mono); text-transform: uppercase; color: var(--ink-70); }
+.nx-hero__specs > div { display: flex; justify-content: space-between; }
+.nx-hero__btn { position: relative; display: flex; align-items: center; justify-content: center; width: 220px; margin-top: 48px; padding: 20px 28px; border: 1px solid var(--ink); border-radius: 1px; font: 500 14px/1.2 var(--f-mono); text-transform: uppercase; color: var(--ink); white-space: nowrap; transition: background-color .25s, color .25s; }
+.nx-hero__btn:hover { background: var(--ink); color: var(--bg); }
+.nx-hero__corner { position: absolute; width: 7.2939px; height: 7.2939px; }
+.nx-hero__corner--tl { left: 1.5px; top: 1.5px; }
+.nx-hero__corner--br { right: 1.5px; bottom: 1.5px; transform: rotate(180deg); }
+
+.nx-hero__right { position: relative; grid-column: 3; display: flex; flex-direction: column; justify-content: flex-end; margin-bottom: -31px; }
+.nx-hero__social { position: absolute; top: 157px; right: 40px; list-style: none; display: flex; flex-direction: column; gap: 60px; }
+.nx-hero__social a { display: block; writing-mode: vertical-rl; transform: rotate(180deg); font: 400 14px/1.2 var(--f-mono); text-transform: uppercase; color: var(--ink-70); transition: color .2s; }
+.nx-hero__social a:hover { color: var(--brand); }
+.nx-hero__card { position: relative; align-self: flex-end; width: min(577px, calc(100% + 57px)); margin-left: -57px; height: 178px; padding: 25px 28px 0; background: var(--brand); color: #fff; z-index: 3; }
+.nx-hero__card-tag { font: 400 14px/1.2 var(--f-mono); color: rgba(255,255,255,.7); text-transform: uppercase; }
+.nx-hero__card-text { width: 210px; margin-top: 65px; font: 400 14px/1.2 var(--f-mono); text-transform: uppercase; }
+.nx-hero__card-img { position: absolute; left: 383px; top: -47px; width: 139px; height: 209px; object-fit: cover; }
+
+.nx-hero__callout { position: absolute; z-index: 4; font: 400 14px/1.2 var(--f-mono); text-transform: uppercase; color: var(--ink-70); pointer-events: none; }
+.nx-hero__labels { display: flex; flex-direction: column; white-space: nowrap; }
+.nx-hero__line { display: block; max-width: none; }
+.nx-hero__marker { display: block; width: 25.333px; height: 25.333px; padding: 6.667px; border: .667px solid var(--ink); background: var(--bg); }
+.nx-hero__marker::before { content: ""; display: block; width: 10.667px; height: 10.667px; background: var(--ink); }
+.nx-hero__callout--l { left: 21.32%; top: 192px; }
+.nx-hero__callout--l .nx-hero__line { width: 304.5px; height: 41px; margin: 22px 0 0 -1px; }
+.nx-hero__callout--l .nx-hero__marker { position: absolute; left: 303px; top: 90px; }
+.nx-hero__callout--r { left: 61.21%; top: 417px; }
+.nx-hero__callout--r .nx-hero__line { position: absolute; left: 20px; top: 11px; width: 310.5px; height: 104.5px; }
+.nx-hero__callout--r .nx-hero__labels { position: absolute; left: 181px; top: 63px; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 1280px) {
+  .nx-hero__callout { display: none; }
+  .nx-hero__card-img { left: auto; right: 16px; }
+}
+@media (max-width: 900px) {
+  .nx-hero .nx-nav__brand { padding-left: 16px; }
+  .nx-hero .nx-nav__brand span { font-size: 18px; }
+  .nx-hero .nx-nav__item { display: none; }
+  .nx-hero .nx-nav__menu { flex: 0 0 auto; }
+  .nx-hero .nx-nav__cta { flex-basis: 140px; }
+  .nx-hero__wordmark { margin-top: 16px; padding: 0 16px; font-size: clamp(48px, 15vw, 140px); white-space: normal; }
+  .nx-hero__stage { grid-template-columns: 1fr; margin-top: 0; padding: 0 16px 0; }
+  .nx-hero__figure { grid-column: 1; grid-row: 1; transform: none; width: min(100%, 420px); justify-self: center; }
+  .nx-hero__left { grid-column: 1; grid-row: 2; padding: 24px 0; flex-direction: row; align-items: flex-end; justify-content: space-between; gap: 16px; }
+  .nx-hero__emblem { margin-left: 0; flex: none; }
+  .nx-hero__profile { margin-top: 0; width: min(220px, 100%); }
+  .nx-hero__btn { width: 100%; margin-top: 24px; }
+  .nx-hero__right { grid-column: 1; grid-row: 3; margin: 0 -16px; }
+  .nx-hero__social { position: static; flex-direction: row; gap: 24px; padding: 0 16px 24px; }
+  .nx-hero__social a { writing-mode: horizontal-tb; transform: none; }
+  .nx-hero__card { width: 100%; margin-left: 0; height: auto; min-height: 178px; padding: 25px 16px 24px; }
+  .nx-hero__card-text { margin-top: 40px; max-width: calc(100% - 150px); }
+  .nx-hero__card-img { right: 8px; }
+}
+@media (max-width: 480px) {
+  .nx-hero__left { flex-direction: column; align-items: flex-start; }
+}
+</style>
+
+<!-- 02-herotitle.html -->
+<section class="nx-herotitle" id="herotitle">
+  <div class="nx-herotitle__inner">
+    <div class="nx-herotitle__head">
+      <h2 class="nx-herotitle__title" data-split>ENTER THE NEON WASTELAND. RECLAIM THE FUTURE.</h2>
+    </div>
+    <div class="nx-herotitle__side">
+      <div class="nx-herotitle__row">
+        <p class="nx-herotitle__desc" data-reveal="fade">Equipped with an adaptive neural helmet, tactical optical zoom, and 360-degree environmental sensors for high-hazard battlefield dominance</p>
+        <a class="nx-herotitle__btn" href="#homepage" data-magnetic>
+          EXPLORE WEAPONS
+          <img src="assets/ht-arrow.svg" width="20" height="20" alt="">
+        </a>
+      </div>
+      <div class="nx-herotitle__ticker" data-marquee>
+        <div class="marquee-track">
+          <span class="nx-herotitle__tick"><img src="assets/ht-icon-time.svg" width="16" height="16" alt="">FEWER RESUBMISSIONS</span>
+          <span class="nx-herotitle__tick"><img src="assets/ht-icon-rework.svg" width="16" height="16" alt="">CROSS-PLATFORM</span>
+          <span class="nx-herotitle__tick"><img src="assets/ht-icon-rework.svg" width="16" height="16" alt="">CROSS-PLATFORM</span>
+          <span class="nx-herotitle__tick"><img src="assets/ht-icon-approvals.svg" width="16" height="16" alt="">4K @ 120FPS</span>
+          <span class="nx-herotitle__tick"><img src="assets/ht-icon-time.svg" width="16" height="16" alt="">RAY TRACING</span>
+          <span class="nx-herotitle__tick"><img src="assets/ht-icon-rework.svg" width="16" height="16" alt="">GLOBAL SERVERS</span>
+          <span class="nx-herotitle__tick"><img src="assets/ht-icon-approvals.svg" width="16" height="16" alt="">STREAMLINED APPROVALS</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<style>
+.nx-herotitle { background: var(--bg); color: var(--ink); }
+.nx-herotitle *, .nx-herotitle *::before, .nx-herotitle *::after { box-sizing: border-box; }
+.nx-herotitle :where(p, h2) { margin: 0; }
+.nx-herotitle a { color: inherit; text-decoration: none; }
+.nx-herotitle__inner { display: flex; align-items: stretch; max-width: 1712px; margin: 0 auto; }
+.nx-herotitle__head { flex: 1 1 0; min-width: 0; display: flex; align-items: center; padding: 32px; border: 1px solid var(--bd); }
+.nx-herotitle__title { font-family: var(--f-display); font-weight: 700; font-size: clamp(32px, 3.7vw, 64px); line-height: .9; letter-spacing: -0.01em; text-transform: uppercase; color: var(--ink); }
+.nx-herotitle__side { flex: 0 0 577px; display: flex; flex-direction: column; min-width: 0; }
+.nx-herotitle__row { flex: 1 1 auto; display: flex; align-items: stretch; }
+.nx-herotitle__desc { flex: 1 1 0; min-width: 0; padding: 16px 32px 6px 16px; border: 1px solid var(--bd); font-family: var(--f-display); font-weight: 500; font-size: 16px; line-height: 1.5; color: var(--ink-70); }
+.nx-herotitle .nx-herotitle__btn { position: relative; flex: 0 0 200px; min-height: 120px; padding: 16px; border: 1px solid var(--bd); font: 500 14px/1.1 var(--f-mono); text-transform: uppercase; color: var(--brand); white-space: nowrap; transition: background-color .25s; }
+.nx-herotitle__btn:hover { background: rgba(241,85,52,.06); }
+.nx-herotitle__btn img { position: absolute; right: 7.5px; bottom: 3.5px; width: 20px; height: 20px; transition: transform .25s; }
+.nx-herotitle__btn:hover img { transform: translateX(4px); }
+.nx-herotitle__ticker { overflow: hidden; padding: 12px 0; border: 1px solid var(--bd); }
+.nx-herotitle__ticker .marquee-track { display: flex; gap: 16px; width: max-content; padding-right: 16px; }
+.nx-herotitle__tick { display: inline-flex; align-items: center; gap: 6px; flex: none; font: 500 14px/1.2 var(--f-mono); text-transform: uppercase; color: var(--ink-70); white-space: nowrap; }
+.nx-herotitle__tick img { width: 16px; height: 16px; flex: none; }
+@media (max-width: 1100px) {
+  .nx-herotitle__side { flex-basis: 480px; }
+}
+@media (max-width: 900px) {
+  .nx-herotitle__inner { flex-direction: column; }
+  .nx-herotitle__head { padding: 32px 16px; }
+  .nx-herotitle__side { flex-basis: auto; }
+  .nx-herotitle__desc { padding: 16px; }
+  .nx-herotitle__btn { flex-basis: 150px; min-height: 96px; }
+}
+@media (max-width: 480px) {
+  .nx-herotitle__row { flex-direction: column; }
+  .nx-herotitle__btn { flex-basis: auto; min-height: 72px; }
+}
+</style>
+
+<!-- 03-overview.html -->
+<section class="nx-overview" id="overview">
+  <div class="nx-overview__inner">
+    <span class="nx-overview__rail nx-overview__rail--l" aria-hidden="true"></span>
+    <span class="nx-overview__rail nx-overview__rail--r" aria-hidden="true"></span>
+
+    <!-- top row -->
+    <div class="nx-overview__brand">
+      <div class="nx-overview__mark" aria-hidden="true" data-reveal="scale">
+        <img class="nx-overview__mark-a" src="assets/ov-mark-a.svg" width="148.629" height="146.399" alt="">
+        <img class="nx-overview__mark-b" src="assets/ov-mark-b.svg" width="127.908" height="107.432" alt="">
+      </div>
+    </div>
+    <div class="nx-overview__intro">
+      <p class="nx-overview__eyebrow">OVERVIEW</p>
+      <h2 class="nx-overview__title" data-split>IN A WORLD CONSUMED BY THE VOID, ONLY THE AUGMENTED SURVIVE.</h2>
+    </div>
+
+    <!-- middle row -->
+    <div class="nx-overview__info">
+      <div class="nx-overview__meta">
+        <span>/ HEAVY BLADE</span>
+        <span>[2303,0]</span>
+      </div>
+      <p class="nx-overview__copy" data-reveal="up">Forged from void-matter alloys, the Greatsword delivers devasting kinetic impacts capable of cleaving heavy cybernetic armor</p>
+    </div>
+    <div class="nx-overview__card">
+      <p class="nx-overview__card-tag">/ HEAVY BLADE</p>
+      <figure class="nx-overview__figure" data-parallax="0.15">
+        <img src="assets/ov-character.png" width="338" height="602" alt="Operative in a black trench coat holding a massive greatsword">
+      </figure>
+    </div>
+    <div class="nx-overview__thumbs" data-stagger>
+      <div class="nx-overview__thumb nx-overview__thumb--a" data-hover-zoom>
+        <img src="assets/ov-thumb-blade.png" width="79.333" height="119" alt="Heavy blade weapon">
+      </div>
+      <div class="nx-overview__thumb nx-overview__thumb--b" data-hover-zoom>
+        <img src="assets/ov-thumb-char.png" width="100" height="120.667" alt="Operative variant">
+      </div>
+    </div>
+
+    <!-- bottom row -->
+    <div class="nx-overview__partners" aria-label="Partners">
+      <div class="nx-overview__logos nx-overview__logos--dashed" data-marquee>
+        <div class="marquee-track">
+          <span class="nx-overview__logo"><img class="nx-overview__l177" src="assets/ov-logo-177.png" alt="Partner logo"></span>
+          <img class="nx-overview__div" src="assets/ov-divider.svg" width="1" height="114" alt="">
+          <span class="nx-overview__logo"><img class="nx-overview__l176" src="assets/ov-logo-176.png" alt="Techstars"></span>
+          <img class="nx-overview__div" src="assets/ov-divider.svg" width="1" height="114" alt="">
+          <span class="nx-overview__logo"><img class="nx-overview__l175" src="assets/ov-logo-175.png" alt="SBDC"></span>
+          <img class="nx-overview__div" src="assets/ov-divider.svg" width="1" height="114" alt="">
+        </div>
+      </div>
+      <div class="nx-overview__logos" data-marquee="reverse">
+        <div class="marquee-track">
+          <span class="nx-overview__logo"><img class="nx-overview__l177" src="assets/ov-logo-177.png" alt="Partner logo"></span>
+          <img class="nx-overview__div" src="assets/ov-divider-solid.svg" width="1" height="114" alt="">
+          <span class="nx-overview__logo"><img class="nx-overview__l176" src="assets/ov-logo-176.png" alt="Techstars"></span>
+          <img class="nx-overview__div" src="assets/ov-divider-solid.svg" width="1" height="114" alt="">
+          <span class="nx-overview__logo"><img class="nx-overview__l175" src="assets/ov-logo-175.png" alt="SBDC"></span>
+          <img class="nx-overview__div" src="assets/ov-divider-solid.svg" width="1" height="114" alt="">
+        </div>
+      </div>
+    </div>
+    <div class="nx-overview__specs">
+      <span class="nx-overview__coord">[2303,0]</span>
+      <ul class="nx-overview__platforms" data-stagger>
+        <li>/ UNREAL ENGINE 5</li>
+        <li>/ STEAM</li>
+        <li>/ PLAYSTATION 5</li>
+        <li>/ XBOX SERIES X|S</li>
+        <li>/ NVIDIA RTX</li>
+      </ul>
+    </div>
+  </div>
+</section>
+<style>
+.nx-overview { background: var(--bg); color: var(--ink); overflow: hidden; }
+.nx-overview *, .nx-overview *::before, .nx-overview *::after { box-sizing: border-box; }
+.nx-overview :where(p, h2, ul, figure) { margin: 0; padding: 0; }
+.nx-overview__inner { position: relative; max-width: 1728px; margin: 0 auto; display: grid; grid-template-columns: 42.25% 30.79% 1fr; grid-template-rows: auto auto auto; }
+.nx-overview__rail { position: absolute; top: 0; width: 1px; background: var(--line); pointer-events: none; }
+.nx-overview__rail--l { left: 8px; height: 931px; max-height: 81%; }
+.nx-overview__rail--r { right: 8px; bottom: 0; }
+
+/* top row */
+.nx-overview__brand { grid-column: 1; grid-row: 1; padding: clamp(48px, 8.7vw, 150px) 0 48px clamp(24px, 2.86vw, 49px); border-right: 2px dashed var(--line); border-bottom: 2px dashed var(--line); min-height: 476px; }
+.nx-overview__mark { position: relative; width: 148.629px; height: 146.399px; }
+.nx-overview__mark img { position: absolute; left: 0; display: block; }
+.nx-overview__mark-a { top: 0; width: 148.629px; height: 146.399px; }
+.nx-overview__mark-b { top: 42.6px; width: 127.908px; height: 107.432px; }
+.nx-overview__intro { position: relative; grid-column: 2 / 4; grid-row: 1; padding: clamp(48px, 9vw, 155px) clamp(16px, 2.86vw, 49px) 48px clamp(24px, 2.86vw, 49px); border-bottom: 2px dashed var(--line); }
+.nx-overview__eyebrow { position: absolute; top: calc(clamp(48px, 9vw, 155px) + 18px); font: 400 14px/1.2 var(--f-mono); text-transform: uppercase; color: var(--ink-70); }
+.nx-overview__title { max-width: 900px; font-family: var(--f-display); font-weight: 700; font-size: clamp(28px, 3vw, 52px); line-height: 1.05; letter-spacing: -0.01em; text-transform: uppercase; color: var(--ink); text-indent: 120px; text-wrap: balance; }
+
+/* middle row */
+.nx-overview__info { grid-column: 1; grid-row: 2; display: flex; flex-direction: column; justify-content: space-between; min-height: 455px; padding: 25px 31px 40px 61px; border-right: 2px dashed var(--line); border-bottom: 2px dashed var(--line); }
+.nx-overview__meta { display: flex; justify-content: space-between; gap: 16px; font: 400 14px/1.2 var(--f-mono); text-transform: uppercase; color: var(--ink-70); }
+.nx-overview__copy { max-width: 395px; font-family: var(--f-display); font-weight: 500; font-size: clamp(18px, 1.4vw, 24px); line-height: 1.2; color: var(--ink-70); }
+.nx-overview__card { position: relative; z-index: 2; grid-column: 2; grid-row: 2; min-height: 455px; padding: 35px 34px; background: var(--brand); }
+.nx-overview__card-tag { font: 500 14px/1.1 var(--f-mono); text-transform: uppercase; color: rgba(255,255,255,.5); }
+.nx-overview__figure { position: absolute; left: 51.9%; top: -3px; width: 63.5%; pointer-events: none; }
+.nx-overview__figure img { display: block; width: 100%; height: auto; aspect-ratio: 338 / 602; object-fit: cover; }
+.nx-overview__thumbs { grid-column: 3; grid-row: 2; display: flex; flex-direction: column; align-items: flex-end; gap: 11px; padding: 59px clamp(16px, 3.6vw, 62px) 40px 16px; border-bottom: 2px dashed var(--line); }
+.nx-overview__thumb { position: relative; width: 128px; height: 133px; overflow: hidden; background: rgba(241,85,52,.08); }
+.nx-overview__thumb img { position: absolute; top: 7px; object-fit: cover; transition: transform .4s; }
+.nx-overview__thumb--a img { left: 24px; width: 79.333px; height: 119px; }
+.nx-overview__thumb--b img { left: 11px; width: 100px; height: 120.667px; }
+
+/* bottom row */
+.nx-overview__partners { grid-column: 1; grid-row: 3; height: 216px; overflow: hidden; border-right: 2px dashed var(--line); }
+.nx-overview__logo img { filter: invert(1) brightness(.92); }
+.nx-overview__logos { height: 114px; overflow: hidden; border-top: 1px solid var(--line); }
+.nx-overview__logos--dashed { height: 102px; border-top-style: dashed; }
+.nx-overview__logos .marquee-track { display: flex; align-items: center; width: max-content; height: 114px; }
+.nx-overview__logos--dashed .marquee-track { margin-top: -6px; }
+.nx-overview__logo { display: flex; align-items: center; justify-content: center; flex: none; width: 144px; height: 114px; }
+.nx-overview__div { display: block; flex: none; width: 1px; height: 114px; }
+.nx-overview__l177 { width: 75px; height: 38.235px; object-fit: fill; object-position: bottom; }
+.nx-overview__l176 { width: 88.095px; height: 38.586px; object-fit: cover; }
+.nx-overview__l175 { width: 114.286px; height: 22.36px; object-fit: fill; object-position: bottom; }
+.nx-overview__specs { grid-column: 2 / 4; grid-row: 3; display: flex; justify-content: space-between; gap: 24px; padding: 26px clamp(16px, 3.3vw, 57px) 32px 24px; }
+.nx-overview__coord { font: 400 14px/1.2 var(--f-mono); text-transform: uppercase; color: var(--ink-70); }
+.nx-overview__platforms { list-style: none; width: 259px; margin-top: 27px; font: 400 14px/1.2 var(--f-mono); text-transform: uppercase; color: var(--ink-70); }
+
+@media (max-width: 1200px) {
+  .nx-overview__title { text-indent: 0; padding-top: 32px; }
+}
+@media (max-width: 900px) {
+  .nx-overview__inner { grid-template-columns: 1fr; }
+  .nx-overview__rail { display: none; }
+  .nx-overview__brand, .nx-overview__intro, .nx-overview__info, .nx-overview__card, .nx-overview__thumbs, .nx-overview__partners, .nx-overview__specs { grid-column: 1; grid-row: auto; border-right: 0; }
+  .nx-overview__brand { min-height: 0; padding: 48px 16px 24px; border-bottom: 0; }
+  .nx-overview__intro { padding: 0 16px 40px; }
+  .nx-overview__eyebrow { position: static; margin-bottom: 16px; }
+  .nx-overview__title { padding-top: 0; }
+  .nx-overview__info { min-height: 0; gap: 48px; padding: 24px 16px 40px; }
+  .nx-overview__card { min-height: 0; aspect-ratio: 532 / 600; padding: 24px 16px; overflow: hidden; }
+  .nx-overview__figure { left: 50%; top: auto; bottom: 0; width: min(62%, 300px); transform: translateX(-50%); }
+  .nx-overview__thumbs { flex-direction: row; justify-content: flex-start; padding: 24px 16px; }
+  .nx-overview__partners { border-bottom: 2px dashed var(--line); }
+  .nx-overview__specs { padding: 24px 16px 40px; }
+  .nx-overview__platforms { width: auto; margin-top: 0; }
+}
+</style>
+
+<!-- 04-blade.html -->
+<section class="nx-blade" id="blade">
+  <div class="nx-blade__inner">
+    <header class="nx-blade__head">
+      <span class="nx-blade__coord">[2303,0]</span>
+      <div class="nx-blade__title">
+        <p class="nx-blade__eyebrow">TARGET_LOCKED</p>
+        <h2 class="nx-blade__h2" data-split>POWERED BY NEURAL CYBERNETICS</h2>
+      </div>
+      <span class="nx-blade__coord">[2303,0]</span>
+    </header>
+
+    <div class="nx-blade__stage">
+      <div class="nx-blade__hud">
+      <div class="nx-blade__hline" aria-hidden="true"></div>
+
+      <div class="nx-blade__glow" aria-hidden="true">
+        <img src="assets/bl-ring-glow.png" alt="" width="656" height="656">
+      </div>
+      <div class="nx-blade__ring" data-spin aria-hidden="true">
+        <img class="nx-blade__dash" src="assets/bl-ring-dash.svg" alt="">
+        <img class="nx-blade__dash" src="assets/bl-ring-dash.svg" alt="">
+      </div>
+      <div class="nx-blade__ring" data-spin aria-hidden="true">
+        <div class="nx-blade__arcbox"><img class="nx-blade__arc" src="assets/bl-arc-top.svg" alt=""></div>
+        <div class="nx-blade__arcbox nx-blade__arcbox--r180"><img class="nx-blade__arc" src="assets/bl-arc-bottom.svg" alt=""></div>
+        <div class="nx-blade__arcbox nx-blade__arcbox--rm90"><img class="nx-blade__arc" src="assets/bl-arc-left.svg" alt=""></div>
+        <div class="nx-blade__arcbox nx-blade__arcbox--r90"><img class="nx-blade__arc" src="assets/bl-arc-right.svg" alt=""></div>
+      </div>
+
+      <figure class="nx-blade__char" data-parallax="0.15">
+        <img src="assets/bl-character.png" alt="Blade, a cybernetic swordswoman with a plasma katana, mid-jump">
+      </figure>
+
+      <div class="nx-blade__line nx-blade__line--tr" aria-hidden="true"><img src="assets/bl-line-tr.svg" alt=""></div>
+      <div class="nx-blade__line nx-blade__line--br" aria-hidden="true"><img src="assets/bl-line-br.svg" alt=""></div>
+      <div class="nx-blade__line nx-blade__line--bl" aria-hidden="true"><div class="nx-blade__flip"><img src="assets/bl-line-bl.svg" alt=""></div></div>
+
+      <span class="nx-blade__marker nx-blade__marker--1" data-float aria-hidden="true"><i></i></span>
+      <span class="nx-blade__marker nx-blade__marker--2" data-float aria-hidden="true"><i></i></span>
+      <span class="nx-blade__marker nx-blade__marker--3" data-float aria-hidden="true"><i></i></span>
+
+      <span class="nx-blade__tag nx-blade__tag--a" aria-hidden="true">[2303,0]</span>
+      <span class="nx-blade__tag nx-blade__tag--b" aria-hidden="true">[2303,0]</span>
+      </div>
+
+      <ul class="nx-blade__callouts" data-stagger>
+        <li class="nx-blade__callout nx-blade__callout--weapon">/ WEAPON: PLASMA KATANA<br>/ CORE: THERMAL ENERGY<br>/ DAMAGE: EXTREME</li>
+        <li class="nx-blade__callout nx-blade__callout--visual">/ VISUAL: TACTICAL HUD<br>/ NEURAL LINK: 99.8%<br>/ THREAT DETECTOR: ACTIVE</li>
+        <li class="nx-blade__callout nx-blade__callout--element">/ ELEMENT: PLASMA FIRE<br>/ ARMOR PIERCING: 85%<br>/ CRIT RATE: +45%</li>
+        <li class="nx-blade__callout nx-blade__callout--mobility">/ MOBILITY: HIGH-SPEED DASH<br>/ KINETIC BOOSTER: READY<br>/ AGILITY: S-RANK</li>
+        <li class="nx-blade__callout nx-blade__callout--stealth">/ STEALTH MODE: STANDBY<br>/ NOISE REDUCTION: 90%<br>/ COOLDOWN: 12S</li>
+      </ul>
+    </div>
+
+    <div class="nx-blade__giant">
+      <p class="nx-blade__word" data-split>@01</p>
+      <p class="nx-blade__word" data-split>BLADE</p>
+      <p class="nx-blade__services" aria-hidden="true">/ AI AUTOMATION<br>/ AI INTEGRATION<br>/ AI AGENT DEVELOPMENT</p>
+    </div>
+  </div>
+</section>
+<style>
+.nx-blade{position:relative;overflow:hidden;background:var(--brand);color:#fff;}
+.nx-blade *{box-sizing:border-box;}
+.nx-blade__inner{position:relative;max-width:1728px;margin:0 auto;padding-top:106px;}
+.nx-blade__head{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;padding:0 57px 0 57px;}
+.nx-blade__coord{font-family:var(--f-mono);font-weight:500;font-size:12px;line-height:1.1;color:rgba(255,255,255,.7);text-transform:uppercase;white-space:nowrap;}
+.nx-blade__title{display:flex;flex-direction:column;align-items:center;gap:9px;text-align:center;text-transform:uppercase;max-width:848px;}
+.nx-blade__eyebrow{margin:1px 0 0;font-family:var(--f-mono);font-size:14px;line-height:1.2;color:rgba(255,255,255,.7);}
+.nx-blade__h2{margin:0;font-family:var(--f-display);font-weight:700;font-size:clamp(30px,3vw,52px);line-height:1.05;letter-spacing:-.01em;color:#fff;}
+
+/* HUD stage: 1728x880 design box (section y 420-1300) */
+.nx-blade__stage{position:relative;width:100%;aspect-ratio:1728/880;margin-top:clamp(48px,10.2vw,177px);}
+.nx-blade__hline{position:absolute;left:0;right:0;top:47.61%;border-top:2px dashed rgba(255,255,255,.4);}
+.nx-blade__glow,.nx-blade__ring{position:absolute;left:50%;top:47.61%;aspect-ratio:1;}
+.nx-blade__glow{width:37.96%;margin-left:-18.98%;margin-top:-18.98%;}
+.nx-blade__glow img{display:block;width:100%;height:100%;}
+.nx-blade__ring{width:46.3%;margin-left:-23.15%;margin-top:-23.15%;}
+.nx-blade__dash{position:absolute;inset:-.13%;width:100.26%;height:100.26%;display:block;max-width:none;}
+.nx-blade__arcbox{position:absolute;inset:0;}
+.nx-blade__arcbox--r180{transform:rotate(180deg);}
+.nx-blade__arcbox--rm90{transform:rotate(-90deg);}
+.nx-blade__arcbox--r90{transform:rotate(90deg);}
+.nx-blade__arc{position:absolute;left:34.6%;right:36.3%;top:0;bottom:96.16%;width:29.1%;height:3.84%;display:block;max-width:none;}
+
+.nx-blade__char{position:absolute;margin:0;left:33.16%;top:7.95%;width:31.02%;height:80.8%;z-index:2;}
+.nx-blade__char img{display:block;width:100%;height:100%;object-fit:cover;}
+
+.nx-blade__line{position:absolute;z-index:1;}
+.nx-blade__line img{position:absolute;display:block;max-width:none;}
+.nx-blade__line--tr{left:63.95%;top:19.55%;width:19.21%;height:6.48%;}
+.nx-blade__line--tr img{inset:-1.75% -.3%;width:100.6%;height:103.5%;}
+.nx-blade__line--br{left:64.18%;top:64.77%;width:17.3%;height:11.36%;}
+.nx-blade__line--br img{top:-1.02%;left:-.34%;width:100.76%;height:102.27%;}
+.nx-blade__line--bl{left:12.04%;top:66.14%;width:23.09%;height:11.14%;}
+.nx-blade__flip{position:absolute;inset:0;transform:scaleX(-1);}
+.nx-blade__flip img{inset:-1.02% -.25%;width:100.5%;height:102.04%;}
+
+.nx-blade__marker{position:absolute;z-index:3;display:flex;padding:6.667px;border:.667px solid #fff;}
+.nx-blade__marker i{display:block;width:10.667px;height:10.667px;background:#fff;}
+.nx-blade__marker--1{left:62.79%;top:63.41%;}
+.nx-blade__marker--2{left:35.13%;top:64.77%;}
+.nx-blade__marker--3{left:62.5%;top:24.66%;}
+
+.nx-blade__tag,.nx-blade__callout{font-family:var(--f-mono);font-size:clamp(10px,.81vw,14px);line-height:1.2;color:rgba(255,255,255,.7);text-transform:uppercase;white-space:nowrap;}
+.nx-blade__tag{position:absolute;}
+.nx-blade__tag--a{left:19.44%;top:43.3%;}
+.nx-blade__tag--b{left:75.81%;top:50.68%;}
+.nx-blade__hud,.nx-blade__callouts{position:absolute;inset:0;}
+.nx-blade__callouts{list-style:none;margin:0;padding:0;pointer-events:none;}
+.nx-blade__callout{position:absolute;}
+.nx-blade__callout--weapon{left:71.35%;top:12.39%;}
+.nx-blade__callout--visual{left:3.07%;top:39.66%;}
+.nx-blade__callout--element{right:2.72%;top:39.66%;text-align:right;}
+.nx-blade__callout--mobility{left:11.63%;top:69.77%;}
+.nx-blade__callout--stealth{left:78.94%;top:77.61%;}
+
+.nx-blade__giant{position:relative;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;padding:0 2.5% clamp(24px,3vw,48px) 1.85%;margin-top:clamp(24px,4.2vw,73px);}
+.nx-blade__word{margin:0;font-family:var(--f-mono);font-weight:500;font-size:clamp(64px,16.2vw,280px);line-height:1.1;color:#fff;text-transform:uppercase;white-space:nowrap;}
+.nx-blade__services{flex:0 0 100%;margin:clamp(8px,1vw,16px) 0 0;font-family:var(--f-mono);font-weight:500;font-size:14px;line-height:1.1;color:rgba(255,255,255,.7);text-align:right;text-transform:uppercase;white-space:nowrap;}
+
+@media (max-width:900px){
+  .nx-blade__inner{padding-top:56px;}
+  .nx-blade__head{padding:0 16px;justify-content:center;}
+  .nx-blade__coord{display:none;}
+  .nx-blade__stage{aspect-ratio:auto;margin-top:40px;}
+  .nx-blade__hud{position:relative;inset:auto;aspect-ratio:1;}
+  .nx-blade__hline,.nx-blade__glow,.nx-blade__ring{top:50%;}
+  .nx-blade__glow{width:74%;margin-left:-37%;margin-top:-37%;}
+  .nx-blade__ring{width:92%;margin-left:-46%;margin-top:-46%;}
+  .nx-blade__char{left:18%;width:64%;top:7.5%;height:85%;}
+  .nx-blade__line,.nx-blade__marker,.nx-blade__tag{display:none;}
+  .nx-blade__callouts{position:static;display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:24px 16px 0;}
+  .nx-blade__callout{position:static;text-align:left;white-space:normal;font-size:11px;}
+  .nx-blade__giant{padding:0 16px;margin-top:32px;height:auto;}
+  .nx-blade__word{font-size:clamp(48px,16vw,140px);}
+  .nx-blade__services{display:none;}
+}
+</style>
+
+<!-- 05-problem.html -->
+<section class="nx-problem" id="problem">
+  <div class="nx-problem__inner">
+    <img class="nx-problem__rule" src="assets/pb-line-top.svg" alt="" aria-hidden="true">
+    <div class="nx-problem__intro">
+      <div class="nx-problem__head" data-reveal>
+        <p class="nx-problem__eyebrow">GAMEPLAY MECHANICS</p>
+        <h2 class="nx-problem__h2" data-split>DOMINATE THE BATTLEFIELD WITH ADVANCED COMBAT SYSTEM</h2>
+      </div>
+      <p class="nx-problem__lede" data-reveal>Combine real-time tactical maneuvers, elemental abilities, and high-speed execution to overwhelm enemy forces.</p>
+    </div>
+
+    <div class="nx-problem__grid" data-stagger>
+      <!-- 01 -->
+      <article class="nx-problem__card nx-problem__card--active">
+        <div class="nx-problem__illus" data-hover-zoom>
+          <img class="nx-problem__plus nx-problem__plus--tl" src="assets/pb-plus.svg" alt="" aria-hidden="true">
+          <img class="nx-problem__plus nx-problem__plus--bl" src="assets/pb-plus.svg" alt="" aria-hidden="true">
+          <img class="nx-problem__plus nx-problem__plus--tr" src="assets/pb-plus.svg" alt="" aria-hidden="true">
+          <img class="nx-problem__plus nx-problem__plus--br" src="assets/pb-plus.svg" alt="" aria-hidden="true">
+          <img class="nx-problem__photo" src="assets/pb-char-1.png" alt="Operative in a black tactical coat resting on a massive greatsword" loading="lazy">
+        </div>
+        <div class="nx-problem__label">
+          <span class="nx-problem__tag"><i class="nx-problem__dot"></i>TIME SLOW</span>
+          <span class="nx-problem__num">[01]</span>
+        </div>
+        <div class="nx-problem__body">
+          <h3 class="nx-problem__h3">CHRONO-DODGE &amp; SLOW MOTION</h3>
+          <p class="nx-problem__desc">Perform perfect dodges at the exact frame to dilate time and unleash high-damage counter-attacks</p>
+        </div>
+      </article>
+
+      <!-- 02 -->
+      <article class="nx-problem__card">
+        <div class="nx-problem__illus" data-hover-zoom>
+          <img class="nx-problem__plus nx-problem__plus--tl" src="assets/pb-plus.svg" alt="" aria-hidden="true">
+          <img class="nx-problem__plus nx-problem__plus--bl" src="assets/pb-plus.svg" alt="" aria-hidden="true">
+          <img class="nx-problem__plus nx-problem__plus--tr" src="assets/pb-plus.svg" alt="" aria-hidden="true">
+          <img class="nx-problem__plus nx-problem__plus--br" src="assets/pb-plus.svg" alt="" aria-hidden="true">
+          <img class="nx-problem__photo" src="assets/pb-char-2.png" alt="Katana-wielding operative with an orange scabbard, mid-swing" loading="lazy">
+        </div>
+        <div class="nx-problem__label">
+          <span class="nx-problem__tag">LOCK-ON</span>
+          <span class="nx-problem__num">[02]</span>
+        </div>
+        <div class="nx-problem__body">
+          <h3 class="nx-problem__h3">WEAKNESS SCAN &amp; TACTICAL LOCK</h3>
+          <p class="nx-problem__desc">Scan enemy cybernetic structures in real-time to highlight critical vulnerabilities</p>
+        </div>
+      </article>
+
+      <!-- 03 -->
+      <article class="nx-problem__card">
+        <div class="nx-problem__illus" data-hover-zoom>
+          <img class="nx-problem__plus nx-problem__plus--tl" src="assets/pb-plus.svg" alt="" aria-hidden="true">
+          <img class="nx-problem__plus nx-problem__plus--bl" src="assets/pb-plus.svg" alt="" aria-hidden="true">
+          <img class="nx-problem__plus nx-problem__plus--tr" src="assets/pb-plus.svg" alt="" aria-hidden="true">
+          <img class="nx-problem__plus nx-problem__plus--br" src="assets/pb-plus.svg" alt="" aria-hidden="true">
+          <img class="nx-problem__photo" src="assets/pb-char-3.png" alt="White-haired operative in a green bomber jacket carrying a greatsword" loading="lazy">
+        </div>
+        <div class="nx-problem__label">
+          <span class="nx-problem__tag">TELEPORT</span>
+          <span class="nx-problem__num">[03]</span>
+        </div>
+        <div class="nx-problem__body">
+          <h3 class="nx-problem__h3">QUANTUM DASH &amp; SHADOW STEP</h3>
+          <p class="nx-problem__desc">Instantly blink across the battlefield to flank enemies or escape deadly AOE strikes</p>
+        </div>
+      </article>
+
+      <!-- 04 -->
+      <article class="nx-problem__card">
+        <div class="nx-problem__illus" data-hover-zoom>
+          <img class="nx-problem__plus nx-problem__plus--tl" src="assets/pb-plus.svg" alt="" aria-hidden="true">
+          <img class="nx-problem__plus nx-problem__plus--bl" src="assets/pb-plus.svg" alt="" aria-hidden="true">
+          <img class="nx-problem__plus nx-problem__plus--tr" src="assets/pb-plus.svg" alt="" aria-hidden="true">
+          <img class="nx-problem__plus nx-problem__plus--br" src="assets/pb-plus.svg" alt="" aria-hidden="true">
+          <img class="nx-problem__photo" src="assets/pb-char-4.png" alt="Silver-haired operative with a recon drone and a tactical staff" loading="lazy">
+        </div>
+        <div class="nx-problem__label">
+          <span class="nx-problem__tag">OVERCLOCK</span>
+          <span class="nx-problem__num">[04]</span>
+        </div>
+        <div class="nx-problem__body">
+          <h3 class="nx-problem__h3">ULTIMATE NEURAL OVERLOAD</h3>
+          <p class="nx-problem__desc">Unleash stored kinetic energy into a devastating burst that shatters enemy shields</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+<style>
+.nx-problem{position:relative;background:var(--bg);padding:0 8px;color:var(--ink);}
+.nx-problem *{box-sizing:border-box;}
+.nx-problem__inner{position:relative;max-width:1712px;margin:0 auto;display:grid;grid-template-columns:minmax(0,824fr) minmax(0,888fr);}
+.nx-problem__rule{position:absolute;left:0;top:-1px;width:100%;height:1px;display:block;max-width:none;}
+.nx-problem__intro{position:sticky;top:0;align-self:start;box-sizing:border-box;height:100vh;height:100svh;max-height:1318px;display:flex;flex-direction:column;justify-content:space-between;padding:clamp(64px,8vh,116px) 36px clamp(48px,7vh,88px);}
+.nx-problem__head{display:flex;flex-direction:column;gap:16px;max-width:634px;text-transform:uppercase;}
+.nx-problem__eyebrow{margin:0;font-family:var(--f-mono);font-size:14px;line-height:1.2;color:var(--ink-3);}
+.nx-problem__h2{margin:0;font-family:var(--f-display);font-weight:700;font-size:clamp(30px,3vw,52px);line-height:1.05;letter-spacing:-.01em;color:var(--ink);}
+.nx-problem__lede{margin:0 0 0 44px;max-width:304px;font-family:var(--f-display);font-weight:500;font-size:16px;line-height:1.5;color:var(--ink-3);}
+
+.nx-problem__grid{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--bd);margin-top:-1px;}
+.nx-problem__card{display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--bd);border-top:0;margin-left:-1px;}
+.nx-problem__card:nth-child(odd){margin-left:0;}
+.nx-problem__card:nth-child(n+3){border-bottom:0;}
+.nx-problem__illus{position:relative;height:360px;border-bottom:1px dashed var(--bd);overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.nx-problem__plus{position:absolute;width:12px;height:12px;display:block;}
+.nx-problem__plus--tl{left:16px;top:16px;}
+.nx-problem__plus--tr{right:16px;top:16px;}
+.nx-problem__plus--bl{left:16px;bottom:15.5px;}
+.nx-problem__plus--br{right:16px;bottom:15.5px;}
+
+.nx-problem__photo{position:relative;z-index:1;height:92%;width:auto;max-width:86%;object-fit:contain;align-self:flex-end;display:block;}
+/* line-art compositions (decorative overlays inside a 256px box) */
+.nx-problem__art{position:relative;flex:none;}
+.nx-problem__art--256{width:256px;height:256px;}
+.nx-problem__art--dim{opacity:.32;overflow:hidden;}
+.nx-problem__art img{display:block;max-width:none;}
+.nx-problem__c200,.nx-problem__c164{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);}
+.nx-problem__c200{width:200px;height:200px;}
+.nx-problem__c164{width:164px;height:164px;}
+.nx-problem__pc{position:absolute;}
+.nx-problem__pc > img,.nx-problem__pw > img{width:100%;height:100%;}
+.nx-problem__pc > img{position:absolute;inset:0;}
+.nx-problem__pw{position:absolute;}
+.nx-problem__rot{position:absolute;display:flex;align-items:center;justify-content:center;}
+.nx-problem__rot > div{position:relative;flex:none;transform:rotate(32.13deg);}
+.nx-problem__rot--m30 > div{transform:rotate(-30deg);}
+.nx-problem__frame{position:absolute;left:50%;top:50%;width:200px;height:206px;transform:translate(-50%,-50%);}
+
+.nx-problem__crop{position:relative;flex:none;overflow:hidden;}
+.nx-problem__crop img{position:absolute;max-width:none;display:block;}
+.nx-problem__crop--lock{width:300px;height:233.849px;}
+.nx-problem__crop--lock img{left:-15.47%;top:-145.41%;width:198.07%;height:252.61%;}
+.nx-problem__crop--core{width:200px;height:233.441px;}
+.nx-problem__crop--core img{left:-226.51%;top:-34.64%;width:329.26%;height:280.44%;}
+
+.nx-problem__label{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 32px;border-bottom:1px dashed var(--bd);font-family:var(--f-mono);font-weight:500;font-size:14px;line-height:1.2;text-transform:uppercase;}
+.nx-problem__tag{display:flex;align-items:center;gap:12px;color:var(--ink-3);}
+.nx-problem__num{color:var(--ink-3);white-space:nowrap;}
+.nx-problem__card--active .nx-problem__tag,.nx-problem__card--active .nx-problem__num{color:var(--ink);}
+.nx-problem__dot{display:block;width:8px;height:8px;background:var(--brand);}
+.nx-problem__body{display:flex;flex-direction:column;justify-content:flex-end;gap:16px;min-height:250px;padding:32px;}
+.nx-problem__h3{margin:0;font-family:var(--f-display);font-weight:700;font-size:clamp(22px,1.62vw,28px);line-height:1.05;text-transform:uppercase;color:var(--ink);}
+.nx-problem__desc{margin:0;font-family:var(--f-display);font-size:16px;line-height:1.5;color:var(--ink-70);}
+
+@media (max-width:900px){
+  .nx-problem{padding:0 16px;}
+  .nx-problem__inner{grid-template-columns:1fr;}
+  .nx-problem__intro{position:static;height:auto;max-height:none;padding:48px 0 40px;gap:24px;}
+  .nx-problem__lede{margin:0;}
+}
+@media (max-width:600px){
+  .nx-problem__grid{grid-template-columns:1fr;}
+  .nx-problem__card,.nx-problem__card:nth-child(n+3){margin-left:0;border-bottom:1px solid var(--bd);}
+  .nx-problem__card:last-child{border-bottom:0;}
+  .nx-problem__illus{height:300px;}
+  .nx-problem__crop--lock{transform:scale(.9);}
+  .nx-problem__body{min-height:0;padding:24px;}
+  .nx-problem__label{padding:16px 24px;}
+}
+</style>
+
+<!-- 06-homepage.html -->
+<section class="nx-homepage" id="homepage">
+  <div class="hp-frame">
+    <figure class="hp-map">
+      <img class="hp-map-border" src="assets/hp-map-frame.svg" width="1098" height="1134" alt="">
+      <img class="hp-plus hp-plus--tl" src="assets/hp-corner-plus.svg" width="12" height="12" alt="">
+      <img class="hp-plus hp-plus--tr" src="assets/hp-corner-plus.svg" width="12" height="12" alt="">
+      <img class="hp-plus hp-plus--bl" src="assets/hp-corner-plus.svg" width="12" height="12" alt="">
+      <img class="hp-plus hp-plus--br" src="assets/hp-corner-plus.svg" width="12" height="12" alt="">
+      <img class="hp-hero" src="assets/hp-hero-character.png" alt="Heavy Blade operative: silver-haired mech girl wielding a massive void-forged axe and spear" loading="lazy" data-reveal="scale" data-parallax="0.1">
+    </figure>
+    <div class="hp-panel">
+      <p class="hp-tags">/ YOUR SQUAD<br>/ YOUR WEAPONS<br>/ UNSTOPPABLE</p>
+      <div class="hp-copy">
+        <h2 class="hp-title" data-split>Unleash devastating kinetic force</h2>
+        <p class="hp-text" data-reveal="up">Dominating the frontline with raw physical power, the Heavy Blade class utilizes void-forged greatswords to shatter enemy armor and control the tempo of close-quarters combat.</p>
+      </div>
+      <ul class="hp-feats" data-stagger>
+        <li class="hp-feat"><span class="hp-ico"><img src="assets/hp-weapon-1.png" width="48" height="48" alt="Crimson scythe"></span><span class="hp-feat-txt">Heavy armor piercing:<br>penetrates 90% enemy shields</span></li>
+        <li class="hp-feat"><span class="hp-ico"><img src="assets/hp-weapon-2.png" width="48" height="48" alt="Red crystal greatsword"></span><span class="hp-feat-txt">Area of effect:<br>cleaves multiple targets in a single swipe</span></li>
+        <li class="hp-feat"><span class="hp-ico"><img src="assets/hp-weapon-3.png" width="48" height="48" alt="Burning katana"></span><span class="hp-feat-txt">Rage meter system:<br>builds ATK speed as health drops</span></li>
+        <li class="hp-feat"><span class="hp-ico"><img src="assets/hp-weapon-4.png" width="48" height="48" alt="Lotus war fan"></span><span class="hp-feat-txt">Neural sync bonus:<br>+25% critical damage in overdrive</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+<style>
+.nx-homepage { background: var(--bg); color: var(--ink); padding: 8px 8px 0; }
+.nx-homepage .hp-frame { max-width: 1712px; margin: 0 auto; border: 1px solid var(--bd); display: flex; min-height: clamp(640px, 64.6vw, 1117px); overflow: hidden; }
+.nx-homepage .hp-map { flex: 1 1 67.5%; min-width: 0; margin: 0; position: relative; container-type: size; display: flex; justify-content: center; align-items: flex-start; padding-top: 20px; }
+.nx-homepage .hp-map-border { position: absolute; left: 50%; top: 50%; width: 97.6cqh; height: 97.4cqw; transform: translate(-50%, -50%) rotate(90deg); pointer-events: none; }
+.nx-homepage .hp-plus { position: absolute; width: 12px; height: 12px; pointer-events: none; }
+.nx-homepage .hp-plus--tl { left: 10px; top: 8px; }
+.nx-homepage .hp-plus--tr { right: 7px; top: 8px; }
+.nx-homepage .hp-plus--bl { left: 10px; bottom: 7px; }
+.nx-homepage .hp-plus--br { right: 7px; bottom: 7px; }
+.nx-homepage .hp-hero { position: relative; display: block; width: 73.8%; max-width: 853px; height: auto; aspect-ratio: 853 / 1029; object-fit: cover; }
+.nx-homepage .hp-panel { flex: 0 0 32.5%; max-width: 556px; min-width: 0; display: flex; flex-direction: column; border-left: 1px solid var(--bd); }
+.nx-homepage .hp-tags { margin: 0; padding: 32px; border-bottom: 1px solid var(--bd); font-family: var(--f-mono); font-size: 14px; line-height: 1.2; color: var(--ink-70); text-transform: uppercase; }
+.nx-homepage .hp-copy { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: flex-end; gap: 24px; padding: 32px; }
+.nx-homepage .hp-title { margin: 0; font-family: var(--f-display); font-weight: 700; font-size: clamp(32px, 3vw, 52px); line-height: 1.05; letter-spacing: -0.01em; text-transform: uppercase; color: var(--ink); }
+.nx-homepage .hp-text { margin: 0; font-family: var(--f-display); font-size: 16px; line-height: 1.5; color: var(--ink-70); }
+.nx-homepage .hp-feats { list-style: none; margin: 0; padding: 0; }
+.nx-homepage .hp-feat { display: flex; align-items: center; gap: 32px; min-height: 84px; border-top: 1px solid var(--bd); padding-right: 32px; transition: background-color .3s ease; }
+.nx-homepage .hp-feat:hover { background: rgba(241, 85, 52, .06); }
+.nx-homepage .hp-ico { flex: none; align-self: stretch; display: flex; align-items: center; padding: 0 26px; background: radial-gradient(circle at 50% 50%, rgba(241,85,52,.12), transparent 70%); border-right: 1px solid var(--bd); }
+.nx-homepage .hp-ico img { display: block; width: 60px; height: 60px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(241,85,52,.35)) brightness(1.15); transition: transform .4s var(--ease-out); }
+.nx-homepage .hp-feat:hover .hp-ico img { transform: scale(1.12) rotate(-6deg); }
+.nx-homepage .hp-feat-txt { font-family: var(--f-mono); font-weight: 500; font-size: 14px; line-height: 1.2; color: var(--ink-70); text-transform: uppercase; }
+@media (max-width: 900px) {
+  .nx-homepage { padding: 8px 16px 0; }
+  .nx-homepage .hp-frame { flex-direction: column; min-height: 0; }
+  .nx-homepage .hp-map { flex: none; height: 118vw; max-height: 720px; padding-top: 12px; }
+  .nx-homepage .hp-hero { width: auto; height: calc(100% - 24px); max-width: 100%; }
+  .nx-homepage .hp-panel { flex: none; max-width: none; border-left: 0; border-top: 1px solid var(--bd); }
+  .nx-homepage .hp-tags, .nx-homepage .hp-copy { padding: 24px 16px; }
+  .nx-homepage .hp-feat { gap: 16px; padding-right: 16px; }
+  .nx-homepage .hp-ico { padding: 0 16px; }
+}
+</style>
+
+<!-- 07-strip.html -->
+<section class="nx-strip" id="strip" aria-label="Highlights">
+  <div class="st-inner" data-marquee>
+    <div class="marquee-track">
+      <span class="st-item"><img src="assets/st-icon-avoid-rework.svg" width="16" height="16" alt="">Faster permits</span>
+      <span class="st-item"><img src="assets/st-icon-avoid-rework.svg" width="16" height="16" alt="">Faster permits</span>
+      <span class="st-item"><img src="assets/st-icon-streamline.svg" width="16" height="16" alt="">Streamlined approvals</span>
+      <span class="st-item"><img src="assets/st-icon-save-time.svg" width="16" height="16" alt="">Fewer resubmissions</span>
+      <span class="st-item"><img src="assets/st-icon-avoid-rework.svg" width="16" height="16" alt="">Faster permits</span>
+      <span class="st-item"><img src="assets/st-icon-streamline.svg" width="16" height="16" alt="">Streamlined approvals</span>
+      <span class="st-item"><img src="assets/st-icon-streamline.svg" width="16" height="16" alt="">Streamlined approvals</span>
+      <span class="st-item"><img src="assets/st-icon-streamline.svg" width="16" height="16" alt="">Streamlined approvals</span>
+      <span class="st-item"><img src="assets/st-icon-streamline.svg" width="16" height="16" alt="">Streamlined approvals</span>
+    </div>
+  </div>
+</section>
+<style>
+.nx-strip { background: var(--bg); color: var(--ink-70); padding: 0 8px; }
+.nx-strip .st-inner { max-width: 1712px; margin: 0 auto; border: 1px solid var(--bd); border-top: 0; padding: 12px 0; overflow: hidden; white-space: nowrap; }
+.nx-strip .marquee-track { display: flex; align-items: center; gap: 16px; width: max-content; padding-right: 16px; }
+.nx-strip .st-item { flex: none; display: inline-flex; align-items: center; gap: 6px; font-family: var(--f-mono); font-weight: 500; font-size: 14px; line-height: 1.2; text-transform: uppercase; }
+.nx-strip .st-item img { display: block; width: 16px; height: 16px; flex: none; }
+@media (max-width: 900px) {
+  .nx-strip { padding: 0 16px; }
+  .nx-strip .st-item { font-size: 12px; }
+}
+</style>
+
+<!-- 08-operatives.html -->
+<section class="nx-operatives" id="operatives">
+  <span class="op-vline" aria-hidden="true"></span>
+  <div class="op-head">
+    <div class="op-wrap op-head-in">
+      <div class="op-head-l">
+        <p class="op-eyebrow">Character gallery</p>
+        <h2 class="op-title" data-split>Discover unique operatives &amp; tactical skins</h2>
+      </div>
+      <p class="op-lead" data-reveal="up">Unlock a diverse roster of operatives, each featuring custom tactical gear, unique combat animations, and specialized cybernetic abilities. Customize your squad and dominate the neon wasteland.</p>
+    </div>
+  </div>
+
+  <div class="op-gallery">
+    <img class="op-arrow" src="assets/op-arrow-down.svg" width="20" height="14" alt="">
+    <p class="op-badge" data-reveal="fade"><span>Exclusive operative skins &amp; gear sets</span></p>
+    <svg class="op-clipdefs" width="0" height="0" aria-hidden="true" focusable="false"><defs>
+      <clipPath id="opLeftClip" clipPathUnits="objectBoundingBox"><path d="M1 0.96V0.04C1 0.0179 0.9795 0 0.9543 0H0.2743C0.2608 0 0.2481 0.0052 0.2394 0.0142L0.0108 0.2511C0.0038 0.2583 0 0.2675 0 0.2769V0.96C0 0.9821 0.0205 1 0.0457 1H0.9543C0.9795 1 1 0.9821 1 0.96Z"/></clipPath>
+      <clipPath id="opRightClip" clipPathUnits="objectBoundingBox"><path d="M0 0.96V0.04C0 0.0179 0.0205 0 0.0457 0H0.7257C0.7392 0 0.7519 0.0052 0.7606 0.0142L0.9892 0.2511C0.9962 0.2583 1 0.2675 1 0.2769V0.96C1 0.9821 0.9795 1 0.9543 1H0.0457C0.0205 1 0 0.9821 0 0.96Z"/></clipPath>
+    </defs></svg>
+    <div class="op-nft" data-reveal="fade" aria-label="Operative skins">
+      <div class="op-nft-half op-nft-half--l">
+        <div class="op-nft-stack" data-nft="left">
+          <div class="op-nft-item"><img src="assets/op-char-364.png" alt="Operative skin" loading="lazy"></div>
+          <div class="op-nft-item"><img src="assets/op-char-356.png" alt="Operative skin" loading="lazy"></div>
+          <div class="op-nft-item"><img src="assets/op-char-363.png" alt="Operative skin" loading="lazy"></div>
+          <div class="op-nft-item"><img src="assets/op-char-359.png" alt="Operative skin" loading="lazy"></div>
+          <div class="op-nft-item"><img src="assets/op-char-357.png" alt="Operative skin" loading="lazy"></div>
+          <div class="op-nft-item"><img src="assets/op-char-358.png" alt="Operative skin" loading="lazy"></div>
+        </div>
+      </div>
+      <div class="op-nft-half op-nft-half--r">
+        <div class="op-nft-stack" data-nft="right">
+          <div class="op-nft-item"><img src="assets/op-char-356.png" alt="Operative skin" loading="lazy"></div>
+          <div class="op-nft-item"><img src="assets/op-char-358.png" alt="Operative skin" loading="lazy"></div>
+          <div class="op-nft-item"><img src="assets/op-char-362.png" alt="Operative skin" loading="lazy"></div>
+          <div class="op-nft-item"><img src="assets/op-char-361.png" alt="Operative skin" loading="lazy"></div>
+          <div class="op-nft-item"><img src="assets/op-char-364.png" alt="Operative skin" loading="lazy"></div>
+          <div class="op-nft-item"><img src="assets/op-char-359.png" alt="Operative skin" loading="lazy"></div>
+        </div>
+      </div>
+    </div>
+    <img class="op-arrow op-arrow--up" src="assets/op-arrow-up.svg" width="20" height="14" alt="">
+  </div>
+
+  <div class="op-community" id="community">
+    <div class="op-wrap op-com-row">
+      <p class="op-side">Our community</p>
+      <img class="op-coins" src="assets/op-coins.png" width="204" height="307" alt="Stack of three black NEXUS GEAR coins" loading="lazy" data-float>
+      <p class="op-side op-side--r">Live community</p>
+    </div>
+    <div class="op-join">
+      <div class="op-join-copy">
+        <h2 class="op-join-title" data-reveal="up">Join over <span data-counter="1000000">1,000,000</span> operatives worldwide</h2>
+        <p class="op-join-text" data-reveal="up">Become part of our thriving global community. Get early access to beta tests, exclusive in-game rewards, and real-time updates directly from the developers</p>
+      </div>
+      <a class="op-btn" href="#footer" data-magnetic>
+        <span>Enter the Nexus</span>
+        <img class="op-btn-c op-btn-c--tl" src="assets/op-btn-corner-tl.svg" width="8" height="8" alt="">
+        <img class="op-btn-c op-btn-c--br" src="assets/op-btn-corner-br.svg" width="8" height="8" alt="">
+      </a>
+    </div>
+  </div>
+</section>
+<style>
+.nx-operatives { --u: min(1px, calc((100vw - 32px) / 1472)); --ln: rgba(255,255,255,.25); position: relative; overflow: hidden; color: #fff; background: var(--brand); border-bottom: 1px solid var(--line); }
+.nx-operatives .op-vline { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--ln); pointer-events: none; }
+.nx-operatives .op-wrap { max-width: 1728px; margin: 0 auto; padding: 0 64px; }
+.nx-operatives .op-head { border-bottom: 1px solid var(--ln); position: relative; }
+.nx-operatives .op-head-in { display: flex; justify-content: space-between; align-items: center; gap: 48px; padding-top: clamp(48px, 5.2vw, 89px); padding-bottom: clamp(64px, 9vw, 160px); }
+.nx-operatives .op-head-l { width: 542px; max-width: 50%; display: flex; flex-direction: column; gap: 16px; }
+.nx-operatives .op-eyebrow { margin: 0; font-family: var(--f-mono); font-size: 14px; line-height: 1.2; text-transform: uppercase; color: rgba(255,255,255,.7); }
+.nx-operatives .op-title { margin: 0; font-family: var(--f-display); font-weight: 700; font-size: clamp(32px, 3vw, 52px); line-height: 1.05; letter-spacing: -0.01em; text-transform: uppercase; color: #fff; }
+.nx-operatives .op-lead { margin: 0; width: 449px; max-width: 45%; font-family: var(--f-display); font-size: 16px; line-height: 1.5; color: rgba(255,255,255,.7); }
+
+.nx-operatives .op-gallery { position: relative; display: flex; flex-direction: column; align-items: center; padding: clamp(40px, 4.1vw, 71px) 16px; border-bottom: 1px solid var(--ln); }
+.nx-operatives .op-arrow { display: block; width: 20px; height: 14px; }
+.nx-operatives .op-arrow--up { transform: scaleY(-1); }
+.nx-operatives .op-badge { margin: 15px 0 0; width: 356px; max-width: 100%; height: 38px; display: flex; align-items: center; justify-content: center; background: url("assets/op-label-bg.svg") center / 100% 100% no-repeat; font-family: var(--f-mono); font-weight: 500; font-size: 14px; line-height: 1.2; text-transform: uppercase; color: #fff; white-space: nowrap; }
+
+
+
+.nx-operatives .op-clipdefs { position: absolute; width: 0; height: 0; overflow: hidden; }
+.nx-operatives .op-nft { --nh: max(160px, calc(444.44 * var(--u))); display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 1px; width: 100%; margin: clamp(24px, 2.5vw, 44px) 0; }
+.nx-operatives .op-nft-half { height: var(--nh); display: flex; }
+.nx-operatives .op-nft-half--l { justify-content: flex-end; clip-path: inset(0 0 0 -100% round 12px); }
+.nx-operatives .op-nft-half--r { justify-content: flex-start; clip-path: inset(0 -100% 0 0 round 12px); }
+.nx-operatives .op-nft-stack { height: 100%; aspect-ratio: 350 / 400; max-width: 100%; display: grid; perspective: 500px; perspective-origin: 100%; transform-style: preserve-3d; }
+.nx-operatives .op-nft-half--r .op-nft-stack { perspective-origin: 0%; }
+.nx-operatives .op-nft-item { grid-area: 1 / 1; position: relative; overflow: hidden; background: linear-gradient(#1a0500, #cc3310); clip-path: url(#opLeftClip); backface-visibility: hidden; will-change: transform, opacity; }
+.nx-operatives .op-nft-half--r .op-nft-item { clip-path: url(#opRightClip); }
+.nx-operatives .op-nft-item img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: 50% 10%; display: block; pointer-events: none; }
+/* static fan (reduced motion / before JS): same poses as the loop frozen in place */
+.nx-operatives .op-nft:not(.is-live) .op-nft-item:nth-child(1) { transform: translate3d(calc(80% * var(--d)), 0, 0); }
+.nx-operatives .op-nft:not(.is-live) .op-nft-item:nth-child(2) { transform: translate3d(0, 0, 0); }
+.nx-operatives .op-nft:not(.is-live) .op-nft-item:nth-child(3) { transform: translate3d(calc(-47% * var(--d)), 0, -83.8px); }
+.nx-operatives .op-nft:not(.is-live) .op-nft-item:nth-child(4) { transform: translate3d(calc(-108% * var(--d)), 0, -200.2px); }
+.nx-operatives .op-nft:not(.is-live) .op-nft-item:nth-child(5) { transform: translate3d(calc(-198% * var(--d)), 0, -373px); }
+.nx-operatives .op-nft:not(.is-live) .op-nft-item:nth-child(6) { transform: translate3d(calc(-340% * var(--d)), 0, -667px); }
+.nx-operatives .op-nft-half--l { --d: 1; }
+.nx-operatives .op-nft-half--r { --d: -1; }
+
+.nx-operatives .op-community { padding: clamp(40px, 4.1vw, 71px) 0 clamp(80px, 9.6vw, 166px); color: #fff; }
+.nx-operatives .op-com-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 24px; }
+.nx-operatives .op-side { margin: 0; font-family: var(--f-mono); font-size: 14px; line-height: 1.2; text-transform: uppercase; color: rgba(255,255,255,.8); }
+.nx-operatives .op-side--r { text-align: right; }
+.nx-operatives .op-coins { display: block; width: clamp(120px, 11.8vw, 204px); height: auto; aspect-ratio: 204 / 307; object-fit: cover; }
+.nx-operatives .op-join { margin: 22px auto 0; max-width: 732px; padding: 0 24px; display: flex; flex-direction: column; align-items: center; gap: clamp(28px, 2.6vw, 44px); text-align: center; }
+.nx-operatives .op-join-copy { display: flex; flex-direction: column; gap: 26px; }
+.nx-operatives .op-join-title { margin: 0 auto; max-width: 684px; font-family: var(--f-display); font-weight: 700; font-size: clamp(32px, 3vw, 52px); line-height: 1.05; letter-spacing: -0.01em; text-transform: uppercase; color: #fff; }
+.nx-operatives .op-join-text { margin: 0; font-family: var(--f-display); font-size: 16px; line-height: 1.5; color: rgba(255,255,255,.85); }
+.nx-operatives .op-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 20px 28px; border-radius: 1px; background: var(--bg); color: #fff; text-decoration: none; font-family: var(--f-mono); font-weight: 500; font-size: 14px; line-height: 1.2; text-transform: uppercase; white-space: nowrap; transition: background-color .3s ease; }
+.nx-operatives .op-btn:hover { background: #000; }
+.nx-operatives .op-btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.nx-operatives .op-btn-c { position: absolute; width: 8px; height: 8px; }
+.nx-operatives .op-btn-c--tl { left: 2px; top: 2px; }
+.nx-operatives .op-btn-c--br { right: 2px; bottom: 2px; transform: rotate(180deg); }
+
+@media (max-width: 900px) {
+  .nx-operatives .op-wrap { padding-left: 16px; padding-right: 16px; }
+  .nx-operatives .op-head-in { flex-direction: column; align-items: flex-start; gap: 24px; }
+  .nx-operatives .op-head-l, .nx-operatives .op-lead { width: auto; max-width: none; }
+  .nx-operatives .op-badge { font-size: 11px; }
+  .nx-operatives .op-com-row { grid-template-columns: 1fr 1fr; }
+  .nx-operatives .op-coins { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+  .nx-operatives .op-join { padding: 0 16px; }
+}
+</style>
+
+<!-- 09-usecases.html -->
+<section class="nx-usecases" id="usecases">
+  <div class="uc-inner">
+    <figure class="uc-media" data-reveal="clip">
+      <img src="assets/uc-warrior.png" alt="Armored warrior in black and red plate with a gold-trimmed sword and tower shield" data-parallax="0.12" loading="lazy">
+    </figure>
+    <div class="uc-panel">
+      <header class="uc-head">
+        <p class="uc-eyebrow">Service</p>
+        <h2 class="uc-title" data-reveal="up">Complete solutions for your game</h2>
+      </header>
+      <div class="uc-list" data-stagger>
+        <details class="uc-item" name="uc-services" open>
+          <summary><span class="uc-num">[01]</span><span class="uc-name">Full-cycle game development</span><span class="uc-icon"><img class="uc-plus" src="assets/uc-icon-plus.svg" width="20" height="20" alt=""><img class="uc-minus" src="assets/uc-icon-minus.svg" width="20" height="20" alt=""></span></summary>
+          <p class="uc-desc">From concept art and game design to coding, launch, and post-release support.</p>
+        </details>
+        <details class="uc-item" name="uc-services">
+          <summary><span class="uc-num">[02]</span><span class="uc-name">2D/3D art &amp; animation</span><span class="uc-icon"><img class="uc-plus" src="assets/uc-icon-plus.svg" width="20" height="20" alt=""><img class="uc-minus" src="assets/uc-icon-minus.svg" width="20" height="20" alt=""></span></summary>
+          <p class="uc-desc">Characters, environments, rigging and animation crafted for 2D and 3D pipelines.</p>
+        </details>
+        <details class="uc-item" name="uc-services">
+          <summary><span class="uc-num">[03]</span><span class="uc-name">Game testing &amp; QA</span><span class="uc-icon"><img class="uc-plus" src="assets/uc-icon-plus.svg" width="20" height="20" alt=""><img class="uc-minus" src="assets/uc-icon-minus.svg" width="20" height="20" alt=""></span></summary>
+          <p class="uc-desc">Functional, compatibility and performance testing across every target platform.</p>
+        </details>
+        <details class="uc-item" name="uc-services">
+          <summary><span class="uc-num">[04]</span><span class="uc-name">Porting &amp; optimization</span><span class="uc-icon"><img class="uc-plus" src="assets/uc-icon-plus.svg" width="20" height="20" alt=""><img class="uc-minus" src="assets/uc-icon-minus.svg" width="20" height="20" alt=""></span></summary>
+          <p class="uc-desc">Bring your game to new consoles, PC and mobile with smooth, stable frame rates.</p>
+        </details>
+        <details class="uc-item" name="uc-services">
+          <summary><span class="uc-num">[05]</span><span class="uc-name">Live-ops &amp; maintenance</span><span class="uc-icon"><img class="uc-plus" src="assets/uc-icon-plus.svg" width="20" height="20" alt=""><img class="uc-minus" src="assets/uc-icon-minus.svg" width="20" height="20" alt=""></span></summary>
+          <p class="uc-desc">Content updates, events, monitoring and fixes that keep players coming back.</p>
+        </details>
+        <details class="uc-item" name="uc-services">
+          <summary><span class="uc-num">[06]</span><span class="uc-name">UI/UX &amp; sound design</span><span class="uc-icon"><img class="uc-plus" src="assets/uc-icon-plus.svg" width="20" height="20" alt=""><img class="uc-minus" src="assets/uc-icon-minus.svg" width="20" height="20" alt=""></span></summary>
+          <p class="uc-desc">Intuitive interfaces and immersive audio that make every interaction feel right.</p>
+        </details>
+      </div>
+    </div>
+  </div>
+</section>
+<style>
+.nx-usecases { background: var(--bg); color: var(--ink); }
+.nx-usecases .uc-inner { max-width: 1728px; margin: 0 auto; padding: 0 8px; display: flex; min-height: clamp(640px, 64.6vw, 1117px); }
+.nx-usecases .uc-media { flex: 0 0 50%; margin: 0; position: relative; overflow: hidden; background: radial-gradient(ellipse 55% 45% at 50% 55%, rgba(241,85,52,.16), transparent 70%), var(--surface); }
+.nx-usecases .uc-media img { position: absolute; inset: 4% 0 -2%; width: 100%; height: 98%; object-fit: contain; object-position: 50% 100%; display: block; }
+.nx-usecases .uc-panel { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; border-left: 1px solid var(--bd); border-right: 1px solid var(--bd); }
+.nx-usecases .uc-head { padding: 32px 32px 48px 64px; display: flex; flex-direction: column; gap: 16px; text-transform: uppercase; }
+.nx-usecases .uc-eyebrow { margin: 0; font-family: var(--f-mono); font-weight: 500; font-size: 14px; line-height: 1.1; color: var(--ink-3); }
+.nx-usecases .uc-title { margin: 0; max-width: 647px; font-family: var(--f-display); font-weight: 700; font-size: clamp(28px, 2.8vw, 48px); line-height: 1; letter-spacing: -0.02em; color: var(--ink); }
+.nx-usecases .uc-list { border-top: 1px solid var(--bd); }
+.nx-usecases .uc-item { border-bottom: 1px dashed var(--bd); position: relative; transition: background-color .35s ease, color .35s ease; }
+.nx-usecases .uc-item summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 32px; padding: 24px 52px 24px 64px; }
+.nx-usecases .uc-item summary::-webkit-details-marker { display: none; }
+.nx-usecases .uc-item summary:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
+.nx-usecases .uc-num { flex: none; font-family: var(--f-mono); font-size: 14px; line-height: 1.2; color: rgba(239,239,231,.5); transition: color .35s ease; }
+.nx-usecases .uc-name { flex: 1 1 auto; min-width: 0; font-family: var(--f-display); font-weight: 700; font-size: clamp(18px, 1.4vw, 24px); line-height: 1; letter-spacing: -0.02em; text-transform: uppercase; color: var(--ink); transition: transform .45s cubic-bezier(.2,.7,.2,1), color .35s ease; }
+.nx-usecases .uc-icon { flex: none; width: 20px; height: 20px; position: relative; }
+.nx-usecases .uc-icon img { position: absolute; inset: 0; transition: opacity .25s ease; }
+.nx-usecases .uc-minus { opacity: 0; }
+.nx-usecases .uc-item[open] .uc-minus { opacity: 1; }
+.nx-usecases .uc-item[open] .uc-plus { opacity: 0; }
+.nx-usecases .uc-item[open] .uc-num { color: var(--brand); font-weight: 500; }
+.nx-usecases .uc-desc { margin: -16px 52px 0 calc(64px + 32px + 4ch); padding: 0 0 24px; max-width: 694px; font-family: var(--f-display); font-weight: 500; font-size: 16px; line-height: 1.3; letter-spacing: -0.02em; color: var(--ink-70); }
+.nx-usecases .uc-item:hover { background: var(--brand); }
+.nx-usecases .uc-item:hover .uc-name { transform: translateX(16px); color: #fff; }
+.nx-usecases .uc-item:hover .uc-num,
+.nx-usecases .uc-item:hover .uc-desc { color: rgba(255,255,255,.85); }
+.nx-usecases .uc-item:hover .uc-icon img { filter: brightness(0) invert(1); }
+@media (prefers-reduced-motion: reduce) { .nx-usecases .uc-name { transition: none; } }
+@media (max-width: 900px) {
+  .nx-usecases .uc-inner { flex-direction: column; padding: 0; min-height: 0; }
+  .nx-usecases .uc-media { flex: none; height: 110vw; max-height: 640px; }
+  .nx-usecases .uc-panel { border: 0; }
+  .nx-usecases .uc-head { padding: 32px 16px; }
+  .nx-usecases .uc-item summary { padding: 20px 16px; gap: 16px; }
+  .nx-usecases .uc-desc { margin: -10px 16px 0 calc(16px + 16px + 4ch); padding-bottom: 20px; }
+}
+</style>
+
+<!-- 10-mission.html -->
+<section class="nx-mission" id="mission">
+  <div class="ms-inner">
+    <header class="ms-top">
+      <p class="ms-label">Our mission</p>
+      <h2 class="ms-headline" data-split>We create experiences that blur the boundaries between the physical and digital worlds.</h2>
+    </header>
+    <div class="ms-body">
+      <figure class="ms-figure" data-reveal="fade">
+        <img class="ms-character" src="assets/ms-character.png" alt="Full-body character with silver hair holding a black polearm" data-parallax="0.1" loading="lazy">
+      </figure>
+      <div class="ms-content">
+        <img class="ms-plus" src="assets/ms-plus.svg" width="11" height="11" alt="" aria-hidden="true" data-float>
+        <div class="ms-statements" data-stagger>
+          <div class="ms-row">
+            <p class="ms-key">Our mission</p>
+            <p class="ms-text">To empower game creators and delight players worldwide by building immersive, next-gen gaming experiences powered by cutting-edge technology and art.</p>
+          </div>
+          <div class="ms-row">
+            <p class="ms-key">Our vision</p>
+            <p class="ms-text">To become a global leader in game development, pushing the boundaries of interactive entertainment and connecting millions through shared digital worlds.</p>
+          </div>
+        </div>
+        <div class="ms-bottom" data-stagger>
+          <div class="ms-card">
+            <p class="ms-card-label">Core values</p>
+            <p class="ms-card-list">/ Innovation<br>/ Creativity<br>/ Uncompromising quality</p>
+          </div>
+          <div class="ms-thumb" data-hover-zoom><img src="assets/ms-thumb-1.png" alt="Armored character thumbnail" loading="lazy"></div>
+          <div class="ms-thumb" data-hover-zoom><img src="assets/ms-thumb-2.png" alt="Character with twin blades thumbnail" loading="lazy"></div>
+          <div class="ms-thumb" data-hover-zoom><img src="assets/ms-thumb-1.png" alt="Armored character thumbnail, alternate" loading="lazy"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<style>
+.nx-mission { background: var(--bg); color: var(--ink); border-top: 1px solid var(--line); }
+.nx-mission .ms-inner { position: relative; border-left: 1px solid var(--line); border-right: 1px solid var(--line); margin-inline: auto; width: calc(100% - 16px); max-width: 1712px; }
+.nx-mission .ms-top { position: relative; padding: 76px 54px 0; min-height: 299px; box-sizing: border-box; border-bottom: 1px solid var(--line); }
+.nx-mission .ms-label { position: absolute; left: 54px; top: 88px; margin: 0; font-family: var(--f-mono); font-size: 14px; line-height: 1.2; text-transform: uppercase; color: var(--ink-70); }
+.nx-mission .ms-headline { margin: 0 0 40px; max-width: 1346px; font-family: var(--f-display); font-weight: 700; font-size: clamp(28px, 3vw, 52px); line-height: 1.05; letter-spacing: -0.01em; text-transform: uppercase; text-indent: min(427px, 25vw); }
+.nx-mission .ms-body { display: flex; }
+.nx-mission .ms-figure { flex: 0 0 auto; width: clamp(320px, 36.5vw, 630px); margin: 0; position: relative; overflow: hidden; border-right: 1px solid var(--line); padding: clamp(28px, 2.6vw, 44px); box-sizing: border-box; display: flex; align-items: center; justify-content: center; }
+.nx-mission .ms-character { position: relative; z-index: 1; display: block; width: 100%; height: auto; aspect-ratio: 573 / 934; object-fit: contain; }
+.nx-mission .ms-content { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; position: relative; }
+.nx-mission .ms-plus { position: absolute; top: 24px; left: 34%; }
+.nx-mission .ms-statements { display: flex; flex-direction: column; gap: clamp(80px, 9vw, 160px); padding: clamp(80px, 9.4vw, 162px) 32px 80px 78px; }
+.nx-mission .ms-row { display: grid; grid-template-columns: minmax(140px, 280px) minmax(0, 404px); }
+.nx-mission .ms-key { margin: 0; font-family: var(--f-mono); font-weight: 500; font-size: 14px; line-height: 1.1; text-transform: uppercase; color: rgba(239,239,231,.5); }
+.nx-mission .ms-text { margin: 0; font-family: var(--f-display); font-weight: 500; font-size: clamp(17px, 1.16vw, 20px); line-height: 1.1; letter-spacing: -0.02em; color: var(--ink-3); }
+.nx-mission .ms-bottom { margin-top: auto; border-top: 1px solid var(--line); padding: 48px 32px 52px 74px; display: flex; gap: 16px; align-items: stretch; flex-wrap: wrap; }
+.nx-mission .ms-card { background: var(--brand); padding: 24px; width: 385px; max-width: 100%; box-sizing: border-box; margin-right: -4px; display: flex; flex-direction: column; gap: 56px; font-family: var(--f-mono); font-weight: 500; font-size: 14px; line-height: 1.1; text-transform: uppercase; }
+.nx-mission .ms-card p { margin: 0; }
+.nx-mission .ms-card-label { color: rgba(255,255,255,.7); }
+.nx-mission .ms-card-list { color: #fff; }
+.nx-mission .ms-thumb { width: 166px; height: 166px; flex: none; background: rgba(241,85,52,.08); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.nx-mission .ms-thumb img { width: 125px; height: 151px; object-fit: cover; display: block; transition: transform .6s cubic-bezier(.2,.7,.2,1); }
+.nx-mission .ms-thumb:nth-of-type(3) img { width: 140px; height: 166px; }
+@media (max-width: 1280px) {
+  .nx-mission .ms-row { grid-template-columns: 1fr; gap: 12px; }
+  .nx-mission .ms-thumb { width: 120px; height: 120px; }
+  .nx-mission .ms-thumb img { width: 92px; height: 110px; }
+  .nx-mission .ms-thumb:nth-of-type(3) img { width: 100px; height: 120px; }
+}
+@media (max-width: 900px) {
+  .nx-mission .ms-inner { width: 100%; border: 0; }
+  .nx-mission .ms-top { padding: 64px 16px 0; min-height: 0; }
+  .nx-mission .ms-label { position: static; margin-bottom: 16px; }
+  .nx-mission .ms-headline { text-indent: 0; }
+  .nx-mission .ms-body { flex-direction: column; }
+  .nx-mission .ms-figure { width: 100%; padding: 32px 16px; border-right: 0; border-bottom: 1px solid var(--line); }
+  .nx-mission .ms-character { max-width: 420px; margin: 0 auto; }
+  .nx-mission .ms-statements { padding: 48px 16px; gap: 40px; }
+  .nx-mission .ms-bottom { padding: 32px 16px 48px; gap: 12px; }
+  .nx-mission .ms-card { width: 100%; margin-right: 0; gap: 32px; }
+  .nx-mission .ms-thumb { flex: 1 1 0; width: auto; min-width: 0; height: auto; aspect-ratio: 1; }
+  .nx-mission .ms-thumb img, .nx-mission .ms-thumb:nth-of-type(3) img { width: 76%; height: 92%; }
+}
+</style>
+
+<!-- 11-footer.html -->
+<section class="nx-footer" id="footer">
+  <div class="ft-subscribe">
+    <div class="ft-sub-copy" data-reveal="up">
+      <p class="ft-label">Community</p>
+      <h2 class="ft-sub-title">Subscribe to<br>Nexus Gear’s <span>updates</span> today.</h2>
+    </div>
+    <form class="ft-form" action="#" method="post" data-reveal="up">
+      <label class="ft-sr" for="ft-email">Email address</label>
+      <input id="ft-email" class="ft-input" type="email" name="email" placeholder="Your email address" autocomplete="email" required>
+      <button class="ft-btn" type="submit" data-magnetic>Subscribe <span aria-hidden="true">→</span></button>
+    </form>
+  </div>
+
+  <div class="ft-mid">
+    <nav class="ft-nav" aria-label="Footer" data-stagger>
+      <a href="#hero">Home</a>
+      <a href="#overview">Games</a>
+      <a href="#usecases">Services</a>
+      <a href="#mission">Careers</a>
+      <a href="#footer">Contact</a>
+    </nav>
+    <div class="ft-col" data-reveal="up">
+      <p class="ft-label">Studio info</p>
+      <ul class="ft-lines">
+        <li>Nexus Studio Ltd.</li>
+        <li>Game Development &amp; Art Services</li>
+        <li>Reg No: 123456789</li>
+      </ul>
+    </div>
+    <div class="ft-col" data-reveal="up">
+      <p class="ft-label">Location</p>
+      <address class="ft-lines ft-addr">
+        <span>Ho Chi Minh City, Vietnam<br>Dist. 1, Ho Chi Minh City</span>
+        <span>2 Cedar St, 07102, Newark, the United States</span>
+      </address>
+    </div>
+    <div class="ft-logo">
+      <img src="assets/ft-logo-box.svg" width="378" height="294" alt="Nexus Gear logo" data-reveal="scale">
+    </div>
+  </div>
+
+  <div class="ft-marquee" data-marquee aria-hidden="true">
+    <div class="marquee-track"><span class="ft-big">Let’s build great games together</span></div>
+  </div>
+
+  <div class="ft-ruler" aria-hidden="true"></div>
+
+  <div class="ft-legal">
+    <div class="ft-social"><a href="#">LinkedIn</a><a href="#">X/Twitter</a></div>
+    <div class="ft-legal-right"><a href="#">Privacy policy &amp; imprint</a><span>© 2025. All Rights Reserved.</span></div>
+  </div>
+</section>
+<style>
+.nx-footer { background: var(--dark); color: #fafafa; overflow: hidden; }
+.nx-footer > * { max-width: 1728px; margin-inline: auto; box-sizing: border-box; }
+.nx-footer .ft-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.nx-footer .ft-label { margin: 0; font-family: var(--f-mono); font-size: 14px; line-height: 1.2; text-transform: uppercase; color: #6e6e6e; }
+.nx-footer .ft-subscribe { display: flex; align-items: flex-end; justify-content: space-between; gap: 48px; min-height: 280px; padding: 48px 70px; border-bottom: 1px solid #2b2b2b; max-width: none; }
+.nx-footer .ft-sub-copy { display: flex; flex-direction: column; gap: 16px; }
+.nx-footer .ft-sub-title { margin: 0; max-width: 501px; font-family: var(--f-display); font-weight: 700; font-size: clamp(24px, 1.85vw, 32px); line-height: 1.05; text-transform: uppercase; color: #fafafa; }
+.nx-footer .ft-sub-title span { color: #fff; }
+.nx-footer .ft-form { flex: 0 1 769px; display: flex; align-items: center; gap: 16px; padding: 8px 0 24px; border-bottom: 1px solid #2b2b2b; transition: border-color .3s ease; }
+.nx-footer .ft-form:focus-within { border-color: var(--brand); }
+.nx-footer .ft-input { flex: 1 1 auto; min-width: 0; background: transparent; border: 0; outline: 0; padding: 0; font-family: var(--f-display); font-size: clamp(20px, 1.6vw, 28px); line-height: 1.3; color: #fafafa; }
+.nx-footer .ft-input::placeholder { color: #6e6e6e; }
+.nx-footer .ft-btn { flex: none; cursor: pointer; background: transparent; color: #fafafa; border: 1px solid var(--brand); padding: 12px 20px; font-family: var(--f-mono); font-size: 14px; line-height: 1.2; text-transform: uppercase; transition: background-color .3s ease; }
+.nx-footer .ft-btn:hover, .nx-footer .ft-btn:focus-visible { background: var(--brand); outline: 0; }
+.nx-footer .ft-mid { display: grid; grid-template-columns: 446px 370px minmax(0, 368px) 1fr; min-height: 338px; border-bottom: 1px solid #2b2b2b; padding-left: 64px; max-width: none; }
+.nx-footer .ft-nav { display: grid; grid-template-columns: 160px auto; align-content: start; row-gap: 40px; padding-top: 75px; }
+.nx-footer .ft-nav a { font-family: var(--f-display); font-weight: 700; font-size: clamp(20px, 1.6vw, 28px); line-height: 1.05; text-transform: uppercase; color: rgba(255,255,255,.7); text-decoration: none; transition: color .25s ease, transform .3s ease; justify-self: start; }
+.nx-footer .ft-nav a:hover { color: var(--brand); transform: translateX(6px); }
+.nx-footer .ft-col { padding-top: 83px; display: flex; flex-direction: column; gap: 16px; max-width: 237px; }
+.nx-footer .ft-lines { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-family: var(--f-display); font-style: normal; font-size: 16px; line-height: 1.5; color: rgba(255,255,255,.7); }
+.nx-footer .ft-addr { line-height: 1.4; }
+.nx-footer .ft-logo { border-left: 1px solid #2b2b2b; display: flex; align-items: center; justify-content: center; padding: 22px 16px; margin-left: auto; width: 100%; max-width: 480px; box-sizing: border-box; }
+.nx-footer .ft-logo img { display: block; max-width: 100%; height: auto; }
+.nx-footer .ft-marquee { max-width: none; padding: 48px 0 0; overflow: hidden; }
+.nx-footer .marquee-track { display: flex; width: max-content; }
+.nx-footer .ft-big { display: block; padding-right: 0.3em; font-family: var(--f-display); font-weight: 700; font-size: clamp(96px, 18vw, 312px); line-height: 1; white-space: nowrap; text-transform: uppercase; color: #222; }
+.nx-footer .ft-ruler { max-width: none; height: 49px; margin-top: 0; background: url("assets/ft-ruler.svg") left bottom / auto 49px repeat-x; }
+.nx-footer .ft-legal { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 40px 64px 40px; font-family: var(--f-mono); font-size: 14px; line-height: 1.2; text-transform: uppercase; color: rgba(255,255,255,.5); max-width: none; }
+.nx-footer .ft-legal a { color: inherit; text-decoration: none; transition: color .25s ease; }
+.nx-footer .ft-legal a:hover { color: var(--brand); }
+.nx-footer .ft-social { display: flex; gap: 32px; }
+.nx-footer .ft-legal-right { display: flex; gap: 64px; }
+.nx-footer .ft-legal-right span { min-width: min(400px, 30vw); text-align: right; }
+@media (max-width: 1280px) {
+  .nx-footer .ft-mid { grid-template-columns: 1fr 1fr 1fr; padding-right: 64px; }
+  .nx-footer .ft-logo { grid-column: 1 / -1; border-left: 0; border-top: 1px solid #2b2b2b; margin: 48px 0 0; max-width: none; }
+}
+@media (max-width: 900px) {
+  .nx-footer .ft-subscribe { flex-direction: column; align-items: stretch; padding: 48px 16px; min-height: 0; gap: 32px; }
+  .nx-footer .ft-form { flex: none; }
+  .nx-footer .ft-mid { grid-template-columns: 1fr; padding: 0 16px; gap: 40px; }
+  .nx-footer .ft-nav { padding-top: 48px; row-gap: 24px; grid-template-columns: 1fr 1fr; }
+  .nx-footer .ft-col { padding-top: 0; max-width: none; }
+  .nx-footer .ft-logo { margin: 0 -16px; width: auto; }
+  .nx-footer .ft-legal { flex-direction: column; align-items: flex-start; padding: 32px 16px; }
+  .nx-footer .ft-legal-right { flex-direction: column; gap: 12px; }
+  .nx-footer .ft-legal-right span { text-align: left; min-width: 0; }
+}
+</style>
+
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const loader = document.querySelector('.nx-loader');
+
+  // In-page links (hero nav, sticky nav clone, footer): smooth scroll to the section, nav height clear of the top
+  document.addEventListener('click', e => {
+    const a = e.target.closest('a[href^="#"]'); if (!a) return;
+    const id = a.getAttribute('href'); if (id.length < 2) { e.preventDefault(); return; }
+    const el = document.querySelector(id); if (!el) return;
+    e.preventDefault();
+    const off = id === '#hero' ? 0 : -64;
+    if (window.__lenis) window.__lenis.scrollTo(el, { offset: off, duration: 1.4 });
+    else window.scrollTo({ top: el.getBoundingClientRect().top + scrollY + off, behavior: reduce ? 'auto' : 'smooth' });
+  });
+
+  // Marquees: duplicate content so the -50% loop is seamless (also in reduced motion so layout is identical)
+  $$('[data-marquee]').forEach(m => {
+    let track = m.querySelector('.marquee-track');
+    if (!track) { track = document.createElement('div'); track.className = 'marquee-track'; while (m.firstChild) track.appendChild(m.firstChild); m.appendChild(track); }
+    const kids = [...track.children];
+    while (track.scrollWidth < m.clientWidth * 1.1 && kids.length) kids.forEach(k => track.appendChild(k.cloneNode(true)));
+    [...track.children].forEach(k => { const c = k.cloneNode(true); c.setAttribute('aria-hidden', 'true'); track.appendChild(c); });
+    m.style.setProperty('--dur', Math.max(18, track.scrollWidth / 2 / 60) + 's');
+    if (!reduce) m.classList.add('is-running');
+  });
+
+  // Forms have nowhere to post inside the preview: confirm in place
+  $$('form').forEach(f => f.addEventListener('submit', e => {
+    e.preventDefault();
+    const btn = f.querySelector('button, [type="submit"]');
+    if (btn) { btn.textContent = 'Demo only, nothing sent'; btn.disabled = true; }
+  }));
+
+  if (reduce || !window.gsap) { if (loader) loader.remove(); return; }
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Smooth scroll
+  let lenis = null;
+  if (window.Lenis) {
+    lenis = new Lenis({ lerp: 0.1 });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(t => lenis.raf(t * 1000));
+    gsap.ticker.lagSmoothing(0);
+    window.__lenis = lenis;
+  }
+
+  // Split headlines into words, preserving line breaks via per-word masks
+  $$('[data-split]').forEach(el => {
+    const walk = node => {
+      [...node.childNodes].forEach(n => {
+        if (n.nodeType === 3) {
+          const frag = document.createDocumentFragment();
+          n.textContent.split(/(\s+)/).forEach(part => {
+            if (!part) return;
+            if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(' ')); return; }
+            const mask = document.createElement('span'); mask.className = 'split-line';
+            const w = document.createElement('span'); w.className = 'split-word'; w.textContent = part;
+            mask.appendChild(w); frag.appendChild(mask);
+          });
+          n.replaceWith(frag);
+        } else if (n.nodeType === 1 && n.tagName !== 'BR') walk(n);
+      });
+    };
+    walk(el);
+  });
+
+  // Intro sequence
+  const hero = document.querySelector('main > section');
+  const heroWords = hero ? $$('[data-split] .split-word', hero) : [];
+  const intro = gsap.timeline({ defaults: { ease: 'expo.out' } });
+  const counter = { v: 0 };
+  const num = loader.querySelector('.nx-loader__num');
+  intro.to(counter, { v: 100, duration: 1.3, ease: 'power2.inOut', onUpdate: () => { num.textContent = String(Math.round(counter.v)).padStart(3, '0'); } })
+       .to(loader.querySelector('.nx-loader__bar i'), { width: '100%', duration: 1.3, ease: 'power2.inOut' }, 0)
+       .to(loader, { yPercent: -100, duration: 1, ease: 'expo.inOut' }, '+=0.1')
+       .from(heroWords, { yPercent: 110, duration: 1.3, stagger: 0.04 }, '-=0.45')
+       .add(() => loader.remove());
+  if (hero) {
+    const heroBits = $$('[data-reveal],[data-stagger] > *', hero).filter(e => !e.closest('[data-split]'));
+    intro.from(heroBits, { opacity: 0, y: 30, duration: 1, stagger: 0.05 }, '-=1.1');
+  }
+
+  // Scroll reveals (outside the hero)
+  const firstSection = hero;
+  const fromFor = type => ({
+    up: { y: 60, opacity: 0 }, left: { x: -80, opacity: 0 }, right: { x: 80, opacity: 0 },
+    scale: { scale: 0.88, opacity: 0 }, fade: { opacity: 0 },
+    clip: { clipPath: 'inset(0 0 100% 0)' }
+  }[type] || { y: 60, opacity: 0 });
+  $$('[data-reveal]').forEach(el => {
+    if (firstSection && firstSection.contains(el)) return;
+    const type = el.getAttribute('data-reveal') || 'up';
+    const vars = { ...fromFor(type), duration: type === 'clip' ? 1.4 : 1.1, ease: type === 'clip' ? 'expo.inOut' : 'expo.out', scrollTrigger: { trigger: el, start: 'top 88%', once: true } };
+    if (type === 'clip') gsap.fromTo(el, { clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0% 0)', duration: 1.4, ease: 'expo.inOut', scrollTrigger: vars.scrollTrigger });
+    else gsap.from(el, vars);
+  });
+  $$('[data-stagger]').forEach(el => {
+    if (firstSection && firstSection.contains(el)) return;
+    gsap.from(el.children, { y: 40, opacity: 0, duration: 0.9, ease: 'expo.out', stagger: 0.08, scrollTrigger: { trigger: el, start: 'top 85%', once: true } });
+  });
+  $$('[data-split]').forEach(el => {
+    if (firstSection && firstSection.contains(el)) return;
+    gsap.from($$('.split-word', el), { yPercent: 110, duration: 1.2, ease: 'expo.out', stagger: 0.03, scrollTrigger: { trigger: el, start: 'top 85%', once: true } });
+  });
+
+  // Parallax
+  $$('[data-parallax]').forEach(el => {
+    const k = parseFloat(el.getAttribute('data-parallax')) || 0.15;
+    gsap.fromTo(el, { y: () => innerHeight * k * 0.5 }, { y: () => -innerHeight * k * 0.5, ease: 'none', scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: true, invalidateOnRefresh: true } });
+  });
+
+  // Ambient
+  $$('[data-spin]').forEach((el, i) => gsap.to(el, { rotation: i % 2 ? -360 : 360, duration: 40 + i * 12, ease: 'none', repeat: -1, transformOrigin: '50% 50%' }));
+  $$('[data-float]').forEach((el, i) => gsap.to(el, { y: -12, duration: 2.2 + (i % 3) * 0.5, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: i * 0.2 }));
+
+  // 3D card conveyor: cards slide out from the centre and recede in depth, looping
+  $$('[data-nft]').forEach(stack => {
+    const d = stack.dataset.nft === 'left' ? 1 : -1;
+    const items = $$('.op-nft-item', stack), D = 6;
+    stack.closest('.op-nft').classList.add('is-live');
+    const X = [0, -47, -108, -198, -340, -604], Z = [0, -83.8, -200.2, -373, -667, -1253.4];
+    const tls = items.map((it, i) => {
+      gsap.set(it, { x: 0, y: 0, xPercent: 80 * d, z: 0, autoAlpha: 1 });
+      const tl = gsap.timeline({ repeat: -1, paused: true });
+      tl.to(it, { keyframes: X.map((x, k) => ({ xPercent: x * d, z: Z[k], autoAlpha: k === X.length - 1 ? 0 : 1, ease: 'power3.out' })), duration: D, ease: 'none' });
+      tl.totalTime(i * D / items.length);
+      return tl;
+    });
+    ScrollTrigger.create({ trigger: stack, start: 'top bottom', end: 'bottom top', onToggle: s => tls.forEach(t => s.isActive ? t.play() : t.pause()) });
+  });
+
+  // Counters
+  $$('[data-counter]').forEach(el => {
+    const target = parseFloat(el.getAttribute('data-counter')) || 0;
+    const fmt = new Intl.NumberFormat('en-US');
+    const original = el.textContent;
+    const o = { v: 0 };
+    ScrollTrigger.create({ trigger: el, start: 'top 90%', once: true, onEnter: () => gsap.to(o, { v: target, duration: 2.2, ease: 'power3.out', onUpdate: () => { el.textContent = original.replace(/[\d,.]+/, fmt.format(Math.round(o.v))); } }) });
+  });
+
+  // Magnetic buttons
+  if (matchMedia('(hover: hover)').matches) {
+    $$('[data-magnetic]').forEach(el => {
+      el.addEventListener('pointermove', e => { const r = el.getBoundingClientRect(); el.style.transform = `translate(${(e.clientX - r.left - r.width / 2) * 0.25}px, ${(e.clientY - r.top - r.height / 2) * 0.35}px)`; });
+      el.addEventListener('pointerleave', () => { el.style.transform = ''; });
+    });
+    // Cursor
+    const cur = document.querySelector('.nx-cursor');
+    const qx = gsap.quickTo(cur, 'x', { duration: 0.35, ease: 'power3' }), qy = gsap.quickTo(cur, 'y', { duration: 0.35, ease: 'power3' });
+    addEventListener('pointermove', e => { cur.style.opacity = 1; qx(e.clientX); qy(e.clientY); });
+    document.addEventListener('pointerover', e => cur.classList.toggle('is-big', !!e.target.closest('a,button,input,[data-magnetic],[data-hover-zoom]')));
+  }
+
+  // Progress bar
+  gsap.to('.nx-progress', { scaleX: 1, ease: 'none', scrollTrigger: { start: 0, end: 'max', scrub: 0.3 } });
+
+  // Sticky nav: clone of the hero nav, shows when scrolling up past the hero header
+  const nav = document.querySelector('.nx-nav');
+  if (nav) {
+    const bar = document.createElement('div'); bar.className = 'nx-sticky'; bar.setAttribute('aria-hidden', 'true');
+    const clone = nav.cloneNode(true); clone.querySelectorAll('[id]').forEach(n => n.removeAttribute('id')); clone.querySelectorAll('a,button').forEach(n => n.tabIndex = -1);
+    // wrap in a box carrying the section's class so its scoped CSS still matches
+    const navSection = nav.closest('section');
+    const wrap = document.createElement('div');
+    if (navSection) wrap.className = navSection.className;
+    wrap.style.cssText = 'all:unset;display:block;max-width:1728px;margin:0 auto';
+    clone.style.background = 'transparent'; clone.style.position = 'static';
+    wrap.appendChild(clone); bar.appendChild(wrap); document.body.appendChild(bar);
+    let last = 0;
+    ScrollTrigger.create({ start: () => nav.offsetTop + nav.offsetHeight + 200, end: 'max', onUpdate: self => { const y = self.scroll(); bar.classList.toggle('is-on', y < last || self.progress > 0.995); last = y; }, onLeaveBack: () => bar.classList.remove('is-on') });
+  }
+
+  addEventListener('load', () => ScrollTrigger.refresh());
+})();
+</script>
+
+</body></html>
