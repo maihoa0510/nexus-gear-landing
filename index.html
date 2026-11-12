@@ -1134,18 +1134,15 @@ html.no-loader .nx-loader { display: none; }
 .nx-mission .ms-key { margin: 0; font-family: var(--f-mono); font-weight: 500; font-size: 14px; line-height: 1.1; text-transform: uppercase; color: rgba(239,239,231,.5); }
 .nx-mission .ms-text { margin: 0; font-family: var(--f-display); font-weight: 500; font-size: clamp(17px, 1.16vw, 20px); line-height: 1.1; letter-spacing: -0.02em; color: var(--ink-3); }
 .nx-mission .ms-bottom { margin-top: auto; border-top: 1px solid var(--line); padding: 48px 32px 52px 74px; display: flex; gap: 16px; align-items: stretch; flex-wrap: wrap; }
-.nx-mission .ms-card { background: var(--brand); padding: 24px; width: 385px; max-width: 100%; box-sizing: border-box; margin-right: -4px; display: flex; flex-direction: column; gap: 56px; font-family: var(--f-mono); font-weight: 500; font-size: 14px; line-height: 1.1; text-transform: uppercase; }
+.nx-mission .ms-card { background: var(--brand); padding: 24px; flex: 1 1 240px; max-width: 385px; box-sizing: border-box; margin-right: -4px; display: flex; flex-direction: column; gap: 56px; font-family: var(--f-mono); font-weight: 500; font-size: 14px; line-height: 1.1; text-transform: uppercase; }
 .nx-mission .ms-card p { margin: 0; }
 .nx-mission .ms-card-label { color: rgba(255,255,255,.7); }
 .nx-mission .ms-card-list { color: #fff; }
-.nx-mission .ms-thumb { width: 166px; height: 166px; flex: none; background: rgba(241,85,52,.08); overflow: hidden; display: flex; align-items: center; justify-content: center; }
-.nx-mission .ms-thumb img { width: 125px; height: 151px; object-fit: cover; display: block; transition: transform .6s cubic-bezier(.2,.7,.2,1); }
-.nx-mission .ms-thumb:nth-of-type(3) img { width: 140px; height: 166px; }
+.nx-mission .ms-thumb { width: clamp(96px, 8.6vw, 166px); height: auto; aspect-ratio: 1; flex: none; background: rgba(241,85,52,.08); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.nx-mission .ms-thumb img { width: 75%; height: 91%; object-fit: cover; display: block; transition: transform .6s cubic-bezier(.2,.7,.2,1); }
+.nx-mission .ms-thumb:nth-of-type(3) img { width: 84%; height: 100%; }
 @media (max-width: 1280px) {
   .nx-mission .ms-row { grid-template-columns: 1fr; gap: 12px; }
-  .nx-mission .ms-thumb { width: 120px; height: 120px; }
-  .nx-mission .ms-thumb img { width: 92px; height: 110px; }
-  .nx-mission .ms-thumb:nth-of-type(3) img { width: 100px; height: 120px; }
 }
 @media (max-width: 900px) {
   .nx-mission .ms-inner { width: 100%; border: 0; }
@@ -1157,7 +1154,7 @@ html.no-loader .nx-loader { display: none; }
   .nx-mission .ms-character { max-width: 420px; margin: 0 auto; }
   .nx-mission .ms-statements { padding: 48px 16px; gap: 40px; }
   .nx-mission .ms-bottom { padding: 32px 16px 48px; gap: 12px; }
-  .nx-mission .ms-card { width: 100%; margin-right: 0; gap: 32px; }
+  .nx-mission .ms-card { flex-basis: 100%; max-width: none; margin-right: 0; gap: 32px; }
   .nx-mission .ms-thumb { flex: 1 1 0; width: auto; min-width: 0; height: auto; aspect-ratio: 1; }
   .nx-mission .ms-thumb img, .nx-mission .ms-thumb:nth-of-type(3) img { width: 76%; height: 92%; }
 }
